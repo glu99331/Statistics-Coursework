@@ -1,0 +1,191 @@
+---
+title: "STAT 1293 - Quiz 4"
+author: "Gordon Lu"
+date: "7/25/2020"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1: ANOVA Test and Pairwise Comparison (20 points)
+### 1a) Calculate the means and the standard deviations for the three groups. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+tipping <- read.table("C:/Users/gordo/Desktop/tipping.txt", header = TRUE) #read in tipping.txt
+
+tapply(tipping$Percent, tipping$Report, mean)
+tapply(tipping$Percent, tipping$Report, sd)
+```
+
+Yes, I think the standard deviations are roughly the same.
+
+### 1b) Do the data support the hypothesis that there are differences among the tipping percentages for the three experimental conditions? Conduct an ANOVA F test. (8 points)
+
+### Solution:
+```{r, eval = TRUE}
+anova(lm(tipping$Percent ~ tipping$Report))
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: \mu_{good} = \mu_{bad} = \mu_{none}$  
+
+$H_{a}$: Not all the $\mu_{i}$'s are equal. $\mu_{i} \neq \mu_{j}$ for some $i$, $j\in {good, bad, none}$ and $i \neq j$
+
+F statistic: $F_{0} = \frac{MSG}{MSE}$ = `20.679`
+
+P-value: $P(F_{I - 1, N-I} > F_0)$ = `1.767e-07`
+
+Decision: Since the p-value is 1.767e-07, we reject the null at the significance level `0.01`, and conclude that not all the means are equal. 
+
+Conclusion: In other words, we have sufficient evidence to conclude that there is a difference among the tipping percentages for the three experimental conditions.
+
+### 1c) Where does the true difference lie? Use a pairwise comparison to answer this question. (4 points)
+
+### Solution:
+
+```{r, eval = TRUE}
+#By using "Bad" as the ref level, can easily compare to Good and None
+tipping$Report <- relevel(tipping$Report, ref = "Bad")
+summary(lm(tipping$Percent~tipping$Report, data = tipping))
+```
+
+The true differences lie between "Bad" and "Good". Note that "Bad" and "None" are not significantly different, while "Bad" and "Good" are significantly different.
+
+### 1d) Use a side-by-side boxplot with means to show the relationship between the means. You don’t have to reorder the levels. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+par(pty = "s")
+tipping$Report = factor(tipping$Report, levels = levels(tipping$Report)[c(2,1,3)])
+boxplot(tipping$Percent ~ tipping$Report, data = tipping)
+means <- tapply(tipping$Percent, tipping$Report, mean)
+points(means, col="red", pch = 18, cex = 2)
+lines(1:3, means, cex = 2)
+```
+
+## Problem 2: Inference on one proportion (15 points)
+### 2a) Are the conditions of large-sample procedure satisfied? Show your evidence. (3 points)
+
+### Solution:
+```{r, eval = TRUE}
+#First let's confirm that we have binary outcomes:
+
+#Them confirm that the trials are independent:
+
+#Then confirm that the sampling distribution is normally distribution.
+
+#We also know the data is from a SRS
+p_success <- 19/172
+p_failure <- 1 - p_success
+
+172 * p_success
+172 * p_failure
+```
+
+Yes. First observing that our data comes from a SRS, we can assume the outcomes are unbiased and random. Additionally, notice how each individual's response can be summarized with a binary outcome. That being, either "Yes" or "No". Then, note how the response of one individual does not impact the response of another, thus individuals are independent. Lastly, note that `np` $\geq 10 = 19$ and $n(1-p) \geq 10 = 153$. Thus, we can conclude that the sample size if sufficiently large, and importantly that the sampling distribution of p is normally distributed.
+
+### 2b) Calculate a 99% confidence interval for the proportion of all undergraduates at this university who would report cheating. Use correct=F. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(19, 172, correct = F, conf.level = 0.99)$conf.int
+```
+
+Carefully interpret the confidence interval you got in Part (a). (2 point)
+
+We can say with 99% confidence that the proportion of undergraduates at the university who would report cheating is at the very least approximately 6.28%, and at the very most approximately 18.71%.
+
+### 2c) Does the data provide sufficient evidence to claim that less than 20% undergraduates in the university would report cheating? Use correct=F. (8 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(19, 172, 0.20, correct = F, alt = "less")
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: p = 0.20$
+
+$H_{a}: p < 0.20$
+
+z statistic: $z_{0} = \frac{\hat{p} - p_0}{\sqrt{\frac{p_0(1 - p_0)}{n}}}$ = `8.6177`
+
+P-value: $P(Z < z_0)$ = `0.001665`
+
+Decision: Since the p-value is 0.001665, we reject the null at the significance level `0.01`, and conclude that there is sufficient evidence to conclude that less than 20% undergraduates in the university would report cheating. 
+
+Conclusion: In other words, we have sufficient evidence to conclude that less than 20% undergraduates in the university would report cheating.
+
+
+## Problem 3: Inference on two proportions (15 points)
+### 3a) Are the conditions of large-sample inference satisfied ? Show your evidence. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+p1_success <- 2818/3239
+p1_failure <- 421/3239
+
+3239*p1_success
+3239*p1_failure
+
+p2_success <- 2091/2787
+p2_failure <- 696/2787
+
+2787*p2_success
+2787*p2_failure
+```
+
+Yes. We have the following populations: Those who received formal music instruction during all three years, which is 3239, and those who did not receive formal music instruction during all three years of middle school is 2787. Now, for the 3239 ninth graders who received formal musical instruction, 2818 passed algebra, meaning the probability of success for the first population is $\frac{2818}{3239}$. It is important to note that whether or not a student has passed algebra does not impact another student's result. Therefore for the first population, the students are independent of one another. Additionally, notice that $\frac{2818}{3239} \times 3239 = 2818 \geq 10$, and $(1-\frac{2818}{3239}) \times 3239 = 421 \geq 10$, therefore the sample sizes for population 1 is sufficiently large, and thus the sampling distribution for population 2 is approximately normally distributed. The same approach can be used for population 2. Note that among the 2787 students who did not receive formal music instruction, 2091 passed algebra, meaning the probability for the second population is $\frac{2091}{2787}$. It is also important to note that whether or not a student has passed algebra does not impact another student's result. Therefore, for the second population, the students are independent of one another as well. Additionally, notice that $\frac{2091}{2787} \times 2787 = 2091 \geq 10$, and $(1-\frac{2091}{2787}) \times 2787 = 696 \geq 10$, therefore the sample size for population 2 is suffiently large, and thus we can conclude the sampling distribution for population 2 is approximately normally distributed.
+
+### 3b) Calculate a common sample proportion ($\hat{p}$) of receiving a passing grade for all students in the sample. (1 point)
+
+### Solution:
+```{r, eval = TRUE}
+p_hat <- (2818 + 2091)/6026
+p_hat
+```
+
+### 3c) Calculate the difference between the sample proportions of the two groups. (1 point)
+
+### Solution:
+```{r, eval = TRUE}
+p_hat1 <- 2818/3239
+p_hat2 <- 2091/2787
+
+diff <- p_hat1 - p_hat2
+diff
+```
+
+### 3d) Calculate a 95% confidence interval for the difference between the proportions of students receiving a passing grade. Use correct=F. (3 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(c(2818,2091), c(3239,2787),correct=F)$conf.int
+```
+
+### 3e) Does the data provide sufficient evidence to claim that musical instruction helps in passing an algebra class? Conduct a H.T. at 0.05 significance level. Use correct=F. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(c(2818,2091), c(3239,2787), correct=F, alt = "greater", conf.level = 0.95)
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: p_{pass-and-play-instrument} = p_{pass-and-not-play-instrument}$
+
+$H_{a}:  p_{pass-and-play-instrument} > p_{pass-and-not-play-instrument}$
+
+z statistic: $z_{0} = \frac{\hat{p_1} -\hat{p_2}}{\sqrt{\frac{p_1(1 - p_1)}{m} + \frac{p_2(1 - p_2)}{n}}}$ = `142.27`
+
+P-value: $P(Z > z_0)$ < `2.2e-16`
+
+Decision: Since p < 0.05, we have sufficient evidence to reject the null hypothesis.
+
+Conclusion: Therefore, we have sufficient evidence to conclude that musical instruction helps in passing algebra.

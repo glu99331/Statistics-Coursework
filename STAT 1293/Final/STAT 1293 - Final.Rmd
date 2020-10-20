@@ -1,0 +1,474 @@
+---
+title: "STAT 1293 - Final Exam"
+author: "Gordon Lu"
+date: "7/29/2020"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1: Inference for proportions (50 points)
+### 1a) Are the guidelines for the use of the large-sample confidence interval satisfied? (3 points)
+
+### Solution:
+Yes. First observing that our data comes from a SRS, we can assume the outcomes are unbiased and random. Additionally, notice how each individual's response can be summarized with a binary outcome. That being, either "Having at least one credit card" or "Having no credit cards". Then, note how the response of one individual does not impact the response of another, thus individuals are independent. Lastly, note that `np` $\geq 10 = 1430(\frac{1087}{1430})\approx 1087 \geq 10$ and $n(1-p) \geq 10 = 1430(\frac{343}{1430}) \approx 343 \geq 10$. Thus, we can conclude that the sample size if sufficiently large, and importantly we can trust the confidence interval.
+
+### 1b) Give a 90% confidence interval for the proportion of all college students who have at least one credit card. Make sure you use R. Include your R code and output in your answer. Don’t use continuity correction. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(1087, 1430, conf.level = 0.90, correct = FALSE)$conf.int
+```
+
+### 1c) Does the data provide sufficient evidence that more than 75% of college students have at least one credit card? Use R to find the p-value. Write down the 4 steps of the hypothesis test. Report the chi-square statistic as the test statistics. Let $\alpha = 0.10$ Don’t use continuity correction. (14 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(1087, 1430, 0.75, conf.level = 0.90, alternative = "greater", correct = FALSE)
+```
+4-Step H.T.
+
+Hypothesis: $H_{0}: p = 0.75$
+
+$H_{a}: p > 0.75$
+
+$\chi^2$ statistic: $z_{0} = \frac{\hat{p} - p_0}{\sqrt{\frac{p_0(1 - p_0)}{n}}}$ = `0.78415`
+
+P-value: $P(Z > z_0)$ = `0.1879`
+
+Decision: Since p > 0.10, we fail to reject the null hypothesis.
+
+Conclusion: Thus, we do not have sufficient evidence to claim that more than 75% of college studenmts have at least one credit card.
+
+### 1d) Are the guidelines for the use of the large-sample significance test satisfied? (3 points)
+
+### Solution:
+Yes. First observing that our data comes from a SRS, we can assume the outcomes are unbiased and random. Additionally, notice how each individual's response can be summarized with a binary outcome. That being, either "Having at least one credit card" or "Having no credit cards". Then, note how the response of one individual does not impact the response of another, thus individuals are independent. Lastly, note that `np` $\geq 10 = 1430(\frac{1087}{1430})\approx 1087 \geq 10$ and $n(1-p) \geq 10 = 1430(\frac{343}{1430}) \approx 343 \geq 10$. Thus, we can conclude that the sample size if sufficiently large, and importantly that the sampling distribution of p is normally distributed. Thus, it is appropriate to use a large-sample significance test.
+
+## Problem 2: Inference for two proportions (24 points)
+### 2a) Are the guidelines for the use of the large-sample confidence interval satisfied? (4 points)
+
+### Solution:
+Yes. We have the following populations: Those who report that they stress about their health, which is 358, and those who reported that they did not stress about their health, which is 851. Now, for the 358 students who reported that they stressed about their health, $29.9%$ said that they were exergamers, meaning the probability of success for the first population is $29.9%$. It is important to note that whether or not a student is an exergamer does not impact another student's result. Therefore for the first population, the students are independent of one another. Additionally, notice that $0.299 \times 358 \approx 107 \geq 10$, and $(1-0.299) \times 358 \approx 251 \geq 10$, therefore the sample sizes for population 1 is sufficiently large, and thus the sampling distribution for population 1 is approximately normally distributed. The same approach can be used for population 2. Note that among the 851 students who reported that they did not stress about their health, $20.8%$ were exergamers, meaning the probability of success for the second population is $20.8%$. It is also important to note that whether or not a student is an exergamer does not impact another student's result. Therefore, for the second population, the students are independent of one another as well. Additionally, notice that $0.208 \times 851 \approx 177 \geq 10$, and $(1-0.208) \approx 674  \geq 10$, therefore the sample size for population 2 is suffiently large, and importantly we can trust the confidence interval.
+
+### 2b) Find a 95% confidence interval for the difference in proportions of exergamers. Define the difference be $p_s-p_n$ which means proportion of exergamers among the stressed minus that among the non-stressed. Don’t use continuity correction. (6 points)
+
+### Solution:
+
+```{r, eval = TRUE}
+prop.test(c(107, 177), c(358, 851), correct = FALSE, conf.level = 0.95)$conf.int
+```
+
+### 2c) Does the data provide sufficient evidence that people who are stressed are more likely to play exergames? Conduct a 4-step hypothesis test at $\alpha = 0.05$. Don’t use continuity correction. (14 points)
+
+### Solution:
+```{r, eval = TRUE}
+prop.test(c(107, 177), c(358, 851), correct = FALSE, conf.level = 0.95, alternative = "greater")
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: p_{stressed-and-exergamer} = p_{not-stressed-and-exergamer}$
+
+$H_{a}: p_{stressed-and-exergamer} > p_{not-stressed-and-exergamer}$
+
+$\chi^2$ statistic: $z_{0} = \frac{\hat{p_1} -\hat{p_2}}{\sqrt{\frac{p_1(1 - p_1)}{m} + \frac{p_2(1 - p_2)}{n}}}$ = `11.583`
+
+P-value: $P(Z > z_0)$ = `0.0003327`
+
+Decision: Since p < 0.05, we have sufficient evidence to reject the null hypothesis.
+
+Conclusion: Therefore, we have sufficient evidence to conclude that people who are stressed are more likely to play exergames.
+
+## Problem 3: Two-way table and chi-squares test (38 points)
+### 3a) Create a two-way table as above. make sure column and row names are defined. (8 points)
+
+### Solution:
+```{r, eval = TRUE}
+matA <- matrix(c(8,15,13,14,19,15,15,4,7,3,1,4), 4, 3, byrow = T)
+colnames(matA) <- c("Psychology", "Biology", "Other")
+rownames(matA) <- c("A", "B", "C", "D-F")
+matA
+```
+
+### 3b) Is there any relationship between grade and major? Conduct a chi-square test at level 0.05. (30 points)
+
+Part I: R code and output (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+chisq.test(matA, correct = F)
+```
+
+Part II: Create a table combing rows "C" and "D-F"
+```{r, eval = TRUE}
+matB<- matrix(c(matA["A",] ,matA["B",], matA["C",] + matA["D-F",]), 3, 3, byrow = T)
+colnames(matB) <- c("Psychology", "Biology", "Other")
+rownames(matB) <- c("A", "B", "C-F")
+matB
+```
+
+Part III: Conduct a chi-square test based on the new table at 0.05 level. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+chisq.test(matB, correct = F)
+```
+
+Part IV: Based on the R output, write down the hypotheses, report the test statistic and the p-value. (6 points)
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: P(Major|Grade) = P(Major|Grade^C)$
+
+$H_{a}: P(Major|Grade) \neq P(Major|Grade^C)$
+
+$\chi^2$ statistic: 10.446
+
+P-value: $P(\chi^2_2 > 10.446)$ = `0.03354`
+
+Part 5: Based on the R output, write down the decision and conclusion. (6 points)
+
+Decision: Since p < 0.05, we have sufficient evidence to reject the null hypothesis.
+
+Conclusion: Therefore, we have sufficient evidence to claim that grade and major are related.
+
+## Problem 4: Linear Regression (82 points)
+Part I: Data Exploration I (Single Variables) (30 points)
+
+1a) Create histograms and Q-Q plots for both “Brother” and “Sister”. Any obvious deviation from normality? Put the 4 figures in one 2-by-2 panel. (10 points)
+
+### Solution:
+```{r, eval = TRUE}
+brosis <- read.table("C:/Users/gordo/Desktop/brosis.txt", header = TRUE) #read in brosis.txt
+attach(brosis)
+
+par(mfrow = c(2,2), pty = "s")
+
+hist(Brother)
+qqnorm(Brother)
+qqline(Brother, col = 2)
+
+hist(Sister)
+qqnorm(Sister)
+qqline(Sister, col = 2)
+```
+
+Answer:
+
+No, there does not appear to be any obvious deviation from normality.
+
+1b) Create a side-by-side boxplot. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+#Brother is bottom plot, sister is one above it!
+boxplot(Brother, Sister, col = c(2,3), outlier = TRUE, horizontal = TRUE) 
+```
+
+1c) Calculate the five number summary of the two groups. (10 points)
+
+### Solution:
+```{r, eval = TRUE}
+summary(brosis)
+```
+
+1d) Calculate the mean and the standard deviation for each group. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+mean(Brother)
+sd(Brother)
+
+mean(Sister)
+sd(Sister)
+```
+
+Part II: Data Exploration II (Relationship) (16 points)
+
+2a) Create a scatterplot and analyze it in terms of form, direction, and strength. (10 points)
+
+### Solution:
+```{r, eval = TRUE}
+plot(Brother, Sister, pch = 16, col = 4)
+```
+
+Analysis of the scatterplot:
+
+Form: Appears to be linear.
+
+Direction: Appears to be positive.
+
+Strength: Appears to be moderate.
+
+2b) Calculate the correlation between “Brother” and “Sister”. Is the value of correlation r consistent with what you have observed in Part a? (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+cor(Brother, Sister)
+```
+
+Yes, since $r > 0$, the relationship is positive. Also, since $|r|$ is close to 0.5, there is a moderate linear relationship.
+
+Part III: Fit a least-squares regression model. Use “Brother” as the explanatory variable and “Sister” as the response variable. (36 points)
+
+3a) Find the intercept and the slope manually using the formulas of $\hat{\beta_0}$ and $\hat{\beta_1}$ in the lecture slides. (8 points)
+
+### Solution:
+```{r, eval = TRUE}
+b1 <- cov(Brother, Sister)/var(Brother) #slope
+b1
+
+b0 <- mean(Sister)-b1*mean(Brother) #intercept
+b0
+```
+
+3b) Using R function lm to find the least-squares line. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+fit <- lm(Sister ~ Brother)
+fit
+```
+
+3c) Write down the regression equation explicitly. (4 points)
+
+### Solution:
+The regression equation is: $\hat{Sister_{i}} =  28.0367 + 0.5206(Brother_{i})$
+
+3d) Superimpose the regression line on the scatterplot. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+plot(Brother, Sister, pch = 16, col = 4)
+abline(fit, col = 2, lwd = 2)
+```
+
+3e) Interpret the slope $b_1$ in context. (4 points)
+
+### Solution:
+For every additional unit of height for a Brother, the Sister's height will increase by 0.5206 inches.
+
+3f) Suppose a brother’s height is 69 inches. What is the predicted height of his sister’s height? (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+b_val <- 69
+predicted <- predict(fit, data.frame(Brother = b_val))
+predicted
+```
+
+The predicted height of his sister's height is `63.95662` inches.
+
+3g) Suppose the actual height of the sister of the 69-inch brother is 60 inches. What is the prediction error (residual)? (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+actual <- 60
+
+residual <- actual - predicted
+
+residual
+```
+
+The residual is: `-3.956618`.
+
+3h) Suppose the actual height of the sister of the 69-inch brother is 60 inches. What is the prediction error (residual)? (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+plot(Brother, Sister, pch = 16, col = 4)
+abline(fit, col = 2, lwd = 2)
+points(x = b_val, y = actual, col = "green", pch = 16)
+segments(b_val, actual, b_val, predicted, col = 2, lwd = 2, lty = 2)
+```
+
+## Problem 5: Inference for Regression (80 points)
+
+5a) Based on the least-squares regression model in Problem 3, estimate the standard deviation term $\sigma$ of Y (or $\epsilon$) in the model. (10 points)
+
+Part I: Calculate $s(\sqrt{MSE})$ manually first. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+SSE <- sum(resid(fit)^2)
+n <- dim(brosis)[1]
+MSE <- SSE/(n-2)
+
+s <- sqrt(MSE)
+s
+```
+
+The standard deviation term of the model is: `2.137696`.
+
+Part II: Use R function `summary()` to extract the details of the regression model. Report the estimate of $\sigma$ from the output. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+summary(fit)
+```
+
+The residual standard error is: `2.138`.
+
+5b) Calculate a 90% confidence interval for the slope $\beta_1$. (10 points)
+
+Part I: Manually calculate the lower and upper bound. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+t <- qt(.95, n-2)
+b1 <- summary(fit)$coefficients[2,1]
+se_b1 <- summary(fit)$coefficients[2,2]
+LL <- b1 - t*se_b1
+UL <- b1 + t*se_b1
+c(LL, UL)
+```
+
+The confidence interval is: `(0.07294199, 0.96821485)`.
+
+Part II: Calculate a 90% confidence interval for the slope $\beta_1$ using the function confint. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+confint(fit, "Brother", level = 0.90)
+```
+
+The confidence interval is: `(0.07294199, 0.9682148)`.
+
+5c) Conduct a hypothesis test about the linear relationship between “Brother” and “Sister” at level 0.10. Based on the R output, write down the four steps of it. (8 points)
+
+### Solution:
+```{r, eval = TRUE}
+summary(fit)
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: \beta_1 = 0$
+
+$H_{a}: \beta_1 \neq 0$
+
+$t$ statistic: $t_0 = \frac{b_1}{se(b_1)} = 2.108$
+
+P-value: $2P(t_{n-2} < |t_0|)$ = `0.0613`.
+
+Decision: Since p < 0.10, we have sufficient evidence to reject the null hypothesis.
+
+Conclusion: Therefore, we have sufficient evidence to claim that there is a linear relationship between the heights of Brothers and Sisters.
+
+5d) Given a new observation of brother’s height, 69 inches, what is the mean value of the sisters’ height? Calculate a 95% confidence interval for the mean response using R function. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+new_brother <- data.frame(Brother = 69)
+predict(fit, new_brother, level = 0.95, interval = "confidence")
+```
+
+The mean of the sisters' height is: `63.95662`, and the confidence interval is: `(62.58087, 65.33237)`.
+
+5e) Given a new observation of brother’s height, 69 inches, what is the predicted value of a single observation of sister’s height? Calculate a 95% prediction interval for the single observation using R function. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+predict(fit, new_brother, level = 0.95, interval = "prediction")
+```
+
+The predicted value of a single observation of sister's height given that the new observation of brother's height is 69 inches is: `63.95662`.
+
+5f) Conduct a utility test on the model at 0.10 level. (12 points)
+
+Part I: Pull out the ANOVA table using the anova() function. (2 points)
+
+### Solution:
+```{r, eval = TRUE}
+anova(fit)
+```
+
+Part II: Based on the ANOVA table, calculate the F statistic manually using the following formula. Show your code and output. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+f_stat <- (20.303/1)/(45.697/10)
+f_stat
+```
+
+Part III: Calculate the p-value of the F statistic. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+p_val <- 1 - pf(f_stat, 1, 10)
+p_val
+```
+
+5g) Coefficients of determination $R^2$ (12 points)
+
+Part I: Calculate the coefficients of determination $R^2$ manually based on the ANOVA table. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+SSR <- 20.303 
+SSE <- 45.697
+SST <- SSR + SSE
+R_sq <- SSR/SST
+R_sq
+```
+
+The coefficient of determination of the model is: `0.3076212`.
+
+Part II: Verify that $R^2$ is equal to the square of the correlation coefficient, r. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+r <- cor(Brother, Sister)
+r^2; R_sq
+```
+
+Although there may be a slight deviation in values, this is likely due to a rounding error. Thus, we can say that the $R^2$ value is equal to the square of the correlation coefficient, `r`.
+
+Part III: Carefully interpret the value of $R^2$ in context. (4 points)
+
+### Solution:
+Only `0.3076212` of the variation in Sister's heights are explained by Brother's heights.
+
+5h) Residuals (16 points)
+
+Part I: Create a residual plot for the model. Add a red reference line (y=0) to the plot. (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+plot(Brother, resid(fit), pch = 16, col = 4, ylab = "Residual")
+abline(h = 0, lwd = 2, col = 2)
+```
+
+Part II: Any concern about the residual plot? (2 points)
+
+### Solution:
+No, there do not appear to be any concerns with the residual plot. It looks like an unstructured horizontal band, and the points are roughly symmetric about 0. There's also no curve pattern observed.
+
+Part III: Create a histogram for the residual plot. Overlay a normal density curve. Any severe deviation from normality? (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+# par(mfrow = c(1,2), pty = "s")
+brosis_resid <- resid(fit)
+hist(brosis_resid, freq=F)
+lines(seq(-4, 5, 0.01), dnorm(seq(-4,5,0.01), mean(brosis_resid), sd(brosis_resid)), col = 2, lwd = 2)
+# qqnorm(brosis_resid)
+# qqline(brosis_resid, col = 2)
+```
+
+Yes, it does not appear to look that normal.
+
+Part IV: Create a Q-Q plot for the residuals. Any severe deviation from normality? (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+qqnorm(brosis_resid)
+qqline(brosis_resid, col = 2)
+```
+
+Yes, there are a fair bit of points that the reference lines does not capture, indicating deviations from normality.

@@ -1,0 +1,153 @@
+---
+title: "STAT 1293 - Quiz 1"
+author: "Gordon Lu"
+date: "7/5/2020"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1: Random Numbers (10 points)
+## 1a) Generate 50 observations from the $t_5$ distribution. Create a histogram. Overlay the histogram with a standard normal density curve (in red). 
+
+### Solution:
+```{r, eval = TRUE, fig.align = "center"}
+x <- rt(50, 5) #Generate 50 observations from t_5 distribution
+hist(x, freq = F, xlim = c(-6, 6), ylim = c(0, 0.5)) #Plot histogram
+min(x)
+y = seq(-6, 6, 0.01)
+lines(y, dt(y, 5), col = 2, lwd = 2) #Overlay density curve
+```
+
+## 1b) Generate 30 observations from the $\chi^{2}_{15}$ distribution. Create a stem-and-leaf plot.
+
+### Solution:
+```{r, eval = TRUE}
+w <- rchisq(30, 15) #Generate 30 observation form the chi^2_{15} distribution
+stem(w) #Create a stem and leaf plot
+```
+
+# Problem 2: Objects (10 points)
+## 2a) Create the following matrix using the `matrix` function.
+
+### Solution:
+```{r, eval = TRUE}
+v <- seq(0, 24, 3)
+matA <- matrix(v, 3, 3, byrow = T)
+matA
+```
+
+## 2b) Create the following matrix by combining rows of vectors.
+
+### Solution:
+```{r, eval = TRUE}
+fruit <- c("Apple", "Banana", "Orange")
+m <- c("Allen", "Bill", "Owen")
+f <- c("Alice", "Bella", "Olivia")
+matB <- rbind(fruit, m, f)
+matB
+```
+
+## 2c) Create a numeric vector `v1` with the following values.
+
+### Solution:
+```{r, eval = TRUE}
+v1 <- seq(0.1, 0.5, 0.1)
+v1
+```
+
+## 2d) Convert `v1` to a factor, call it `v2`. Label the levels as `a, b, c, d, e`.
+
+### Solution:
+
+```{r, eval = TRUE}
+v2 <- factor(v1, levels = seq(0.1, 0.5, 0.1))
+levels(v2) <- letters[1:5]
+v2
+```
+
+## 2e) Create a logical vector by comparing `v1` with `0.225`.
+
+### Solution:
+
+```{r, eval = TRUE}
+bool_vec <- v1 > 0.225
+bool_vec
+```
+
+# Problem 3: Statistics and Graphs (Quantitative) (20 points)
+
+## 3a) Calculate the five-number summary, mean, and the standard deviation of travel time in New York state.
+
+### Solution:
+```{r, include = TRUE}
+nytravel <- read.table("C:/Users/gordo/Desktop/nytravel.txt", header = T)
+summary(nytravel$Minutes) #five-number summary
+mean(nytravel$Minutes) #calculate mean
+sd(nytravel$Minutes) #calculate sd
+```
+
+## 3b) Create a horizontal blue boxplot of `Minutes`.
+
+### Solution:
+```{r, eval = TRUE, fig.align = "center"}
+boxplot(nytravel$Minutes, horizontal = TRUE, col = 4, xlab = "Travel Time in NY state")
+```
+
+## 3c) Calculate the five-number summary, of the commute time for 15 workers in North Carolina.
+
+### Solution:
+```{r, eval = TRUE}
+nctravel <- read.table("C:/Users/gordo/Desktop/nctravel.txt", header = T)
+summary(nctravel$Minutes)
+```
+
+## 3d) Create a horizontal side-by-side boxplot and compare the commute time of workers in NY and NC.
+
+### Solution:
+```{r, eval = TRUE, fig.align = "center"}
+boxplot(nytravel$Minutes, nctravel$Minutes, horizontal = T, col = c("blue", 0))
+```
+In general, it appears that those who commute to NY typically have a longer travel time to work than those from NC.
+
+
+# Problem 4: Probability Distributions (10 points)
+## 4a) Generate 30 observations from `Bin(20, 0.4)`. Create a `Q-Q` plot and add a red reference line.
+
+### Solution:
+```{r, eval = TRUE, fig.align = "center"}
+par(pty = "s")
+bin_v <- rbinom(30, 20, 0.4)
+qqnorm(bin_v)
+qqline(bin_v, col = 2)
+```
+
+## 4b) Generate 100 observations from `N(20, 5)`. Calculate the empirical 20%, 40%, 60%, and 80% percentiles.
+
+### Solution:
+```{r, eval = TRUE}
+rand_norm <- rnorm(100, 20, 5)
+percentile_vec <- seq(0.2, 0.8, 0.2)
+quantile(rand_norm, percentile_vec)
+```
+
+## 4c) Calculate the following probabilities:
+
+$P(T_{8} > 3)$ where $T_{8}$ means a `t` random variable with 8 degrees of freedom.
+
+### Solution:
+```{r, eval = TRUE}
+1 - pt(3, 8) #P(T_{8} < 3 would just be pt(3,8)
+```
+
+$P(F_{3,5} < 1)$ where $F_{3,5}$ is an `F` random variable with 3 and 5 degrees of freedom.
+
+### Solution:
+```{r, eval = TRUE}
+pf(1,3,5) #calculate probability F_{3,5} < 1
+```
+

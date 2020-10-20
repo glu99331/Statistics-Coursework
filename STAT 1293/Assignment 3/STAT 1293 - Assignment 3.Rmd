@@ -1,0 +1,108 @@
+---
+title: "STAT 1293  Assignment 3"
+author: "Gordon Lu"
+date: "7/12/2020"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1: What do you make of Mitt? (30 points)
+
+### 1a) Make a histogram and a Q-Q plot. Is there any sign of major deviation from Normality?
+
+### Solution:
+```{r, eval = TRUE}
+mitt <- read.table("C:/Users/gordo/Desktop/mitt.txt", header = TRUE) #read in mitt 
+qqnorm(mitt$Mitt.Ratings)
+qqline(mitt$Mitt.Ratings, col = 4)
+hist(mitt$Mitt.Ratings, xlim = c(1, 7))
+```
+
+The histogram and Q-Q plot do not suggest any sign of major deviations from Normality.
+
+### 1b) Give a 95% confidence interval for the mean rating (6 points)
+
+### Solution:
+```{r, eval = TRUE}
+t.test(mitt$Mitt.Ratings, conf.level = .95)$conf.int
+```
+
+### 1c) Is there significant evidence at the 5% level that the mean rating is greater than 3.5?
+
+### Solution:
+```{r, eval = TRUE}
+# x_bar <- mean(mitt$Mitt.Ratings)
+# s <- sd(mitt$Mitt.Ratings)
+# n <- length(mitt$Mitt.Ratings)
+# df <- n - 1
+# t_0 <- (x_bar - 3.5)/(s/sqrt(n)) 
+# p_val <- 1 - pt(t_0, df)
+
+t.test(mitt$Mitt.Ratings, alternative = "greater", mu = 3.5)
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: \mu = 3.5$ vs. $H_{a}: \mu > 3.5$ 
+
+Test statistic: $t_{0} = \frac{\overline{x} - \mu_{0}}{s/\sqrt{n}}$ = `2.942314`
+
+P-value: $P(T > t_0) = 1 - P(T < t_0)$ = `0.003237898`
+
+Conclusion: Reject $H_{0}$, since p-value < 0.05.
+
+## Problem 2: Kicking a helium-filled football (30 points)
+
+### 2a) Create a histogram and a Q-Q plot for difference. Is it reasonable to use the `t` procedure?
+
+### Solution:
+```{r, eval = TRUE}
+football <- read.table("C:/Users/gordo/Desktop/football.txt", header = TRUE) #read in football
+par(mfrow = c(1,2), pty = "s")
+# qqnorm(football$Helium)
+# qqnorm(football$Air)
+qqnorm(football$difference)
+qqline(football$difference, col = 4)
+hist(football$difference, xlim = c(-20, 30), main = "Histogram of Difference")
+```
+
+Yes, although the Q-Q plot does not look good, if we look at the histogram, it looks rather normal. Note that the sample size is also 39, so the sample size is not too small, thus it is fine to perform the `t` procedure.
+
+### 2b) Let $\mu_d = \mu_{helium} - \mu_{air}$. Calculate a 90% confidence interval for $\mu_d.$ 
+
+### Solution:
+```{r, eval = TRUE}
+d <- football$Helium - football$Air
+d_bar <- mean(d)
+s_d <- sd(d)
+n <- length(d)
+df <- n - 1
+t <- qt(.90, df)
+
+d_bar - t*s_d/sqrt(n)
+d_bar + t*s_d/sqrt(n)
+```
+
+### 2c) If the conclusion in part (1) is "yes", does the data give convincing evidence that the helium-filled football travels farther than the air-filled football? Let $\alpha$ = 0.05
+
+### Solution:
+```{r, eval = TRUE}
+t.test(d, alt = "g", mu = 0, conf.level = .90)
+```
+
+4-Step H.T.
+
+Hypothesis: $H_{0}: \mu_d = 0$ vs. $H_{a}: \mu_d > 0$ 
+
+Test statistic: $t_{0} = \frac{\overline{d} - \mu_{d,0}}{s_d/\sqrt{n}}$ = `0.41976`
+
+P-value: $P(T > t_0) = 1 - P(T < t_0)$ = `0.3385`
+
+Conclusion: Fail to reject $H_{0}$, since p-value > 0.10.
+
+No, the data does not give convincing evidence that the helium-filled football travels father than the air-filled footballs.

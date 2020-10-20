@@ -1,0 +1,195 @@
+---
+title: "STAT 1293  Assignment 2"
+author: "Gordon Lu"
+date: "7/7/2020"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1: Bad weather, bad tips? (20 points)
+
+### 1a) Create a histogram of the percent of tips (pct).  Overlay the histogram with a normal density curve (red, dashed). (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+pct <- read.table("C:/Users/gordo/Desktop/tip3.txt", header = TRUE) #read in tip3 
+hist(pct$pct, freq = F, xlim = c(11, 26), ylim = c(0, 0.35))
+y = seq(11, 26)
+lines(y, dnorm(y, mean(pct$pct), sd(pct$pct)), col = 2, lwd = 2, lty = 2)
+```
+
+### 1b) Create a Q-Q plot of pct. Add a reference line (blue, solid). (4 points)
+
+### Solution:
+
+```{r, eval = TRUE}
+qqnorm(pct$pct)
+qqline(pct$pct, col = 4)
+```
+
+### 1c)  Create a horizontal boxplot of pct. Are there any outliers? (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+boxplot(pct$pct, horizontal = T)
+```
+
+Yes, there appear to be 3 outliers. `2` on the lower end, and `1` on the upper end.
+
+### 1d)  Calculate the 5-number summary (Min, Q1, Median, Q3, and Max) of pct. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+summary(pct$pct)
+```
+
+### 1e)  Calculate the mean and standard deviation of `pct`. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+mean(pct$pct)
+sd(pct$pct)
+```
+
+## Problem 2: E.coli in swimming areas (10 points)
+
+### 2a) Create a stem plot of the E. coli levels (Ecolil). (3 points)
+
+### Solution:
+```{r, eval = TRUE}
+ecoli <- read.table("C:/Users/gordo/Desktop/ecoli.txt", header = TRUE) #read in ecoli
+stem(ecoli$Ecolil)
+```
+
+The data seems to be right-skewed, this is apparent through the two upper outliers, `19` and `29`.
+
+### 2b) Split the each stem to two stems. (3 points)
+
+### Solution:
+```{r, eval = TRUE}
+stem(ecoli$Ecolil, 2)
+```
+
+### 2c) Calculate the descriptive statistics using `summary()`. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+summary(ecoli$Ecolil)
+```
+
+Any evidence of skewness?
+Yes. The minimum value of `Ecolil` is 1, which is pretty far away from the `25%` quantile, and the rest of the data. Also, notice that the maximum value of `Ecolil` is `291` is pretty far away from the `mean`, and `75%` quantile and thus is a good indication that the data is right-skewed.
+
+## Problem 3: Daily Activity and Obesity (30 points)
+
+### 3a) Transform the variable Group to a factor, using labels Lean and Obese. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+obese <- read.table("C:/Users/gordo/Desktop/obese.txt", header = TRUE) #read in obese
+obese <- transform(obese, Group = factor(Group, labels = c("Lean", "Obese"))) 
+#transform Group variable as factor-type vector
+obese
+```
+
+### 3b) Calculate and compare the descriptive statistics of standing time (stand) between the two groups. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+stand.lean <- obese$Stand[obese$Group == "Lean"] #get standing time for those in Lean group
+stand.obese <- obese$Stand[obese$Group == "Obese"] #get standing time for those in the Obese group.
+ 
+summary_stand.lean <- summary(stand.lean) #store summary in a variable
+summary_stand.obese <- summary(stand.obese)
+
+print("Summary of Standing Time by Lean is:") #print out
+summary_stand.lean
+print("Summary of Standing Time by Obese is:")
+summary_stand.obese
+```
+
+We can see that on average, those in the `Lean` group typically spend more time standing than those in the `Obese` group.
+
+### 3c) Create a horizontal side-by-side boxplot for the standing time of the two groups. (3 points)
+
+### Solution:
+```{r, eval = TRUE}
+boxplot(obese$Stand ~ obese$Group, horizontal = TRUE) #Generate side-by-side boxplot
+#standing time desribed by groups.
+```
+
+### 3d) Compare the descriptive statistics between the two groups with regard to `sit` and `lie`. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+sit.lean <- obese$Sit[obese$Group == "Lean"] #get sitting time for those in Lean group
+sit.obese <- obese$Sit[obese$Group == "Obese"] #get sitting time for those in the Obese group.
+ 
+summary_sit.lean <- summary(sit.lean) #store summary in a variable
+summary_sit.obese <- summary(sit.obese)
+
+print("Summary of Sitting Time by Lean is:") #print out
+summary_sit.lean
+print("Summary of Sitting Time by Obese is:")
+summary_sit.obese
+```
+
+```{r, eval = TRUE}
+lie.lean <- obese$Lie[obese$Group == "Lean"] #get lying time for those in Lean group
+lie.obese <- obese$Lie[obese$Group == "Obese"] #get lying time for those in the Obese group.
+ 
+summary_lie.lean <- summary(lie.lean) #store summary in a variable
+summary_lie.obese <- summary(lie.obese)
+
+print("Summary of Lying Time by Lean is:") #print out
+summary_lie.lean
+print("Summary of Lying Time by Obese is:")
+summary_lie.obese
+```
+
+In comparing the sitting time between the `lean` and `obese` groups, it appears that, on average, the sitting time for the `obese` group is significantly greater than that of the `lean` group.
+
+As for the lying time for the `lean` and the `obese` groups, it appears that, on average, the lying time for `lean` group is greater than that of the `obese` group. This could be attributed to the idea that those in the `lean` group may tend to spend more time on exercise, and thus may spend more time resting.
+
+### 3e) Create histograms of Sit for the two groups. Let the two histograms have the same x limits in order to do comparison. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+par(mfrow = c(2,1)) #To easily compare the two histograms
+hist(sit.lean, breaks = 10, xlim = c(250, 650), ylim = c(0, 6), col = "white") 
+#plot histogram of sit by lean
+hist(sit.obese, breaks = 10, xlim = c(250, 650), ylim = c(0, 6), col = "grey") 
+#plot histogram of sit by obese
+```
+
+It is apparent that the `obese` group spends more time sitting than the `lean` group.
+
+### 3f) Create a vertical side-by-side boxplot for the time spent on lying down of the two groups. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+boxplot(obese$Lie ~ obese$Group, horizontal = FALSE) #Generate side-by-side boxplot
+```
+
+No, there is no obvious difference. It is difficult to tell that there is a difference in lying time based on group.
+
+### 3g) Compare the summary statistics of all variables between the two groups using the function by. (4 points)
+
+### Solution:
+```{r, eval = TRUE}
+obese_summary <- by(obese, obese["Group"], summary)
+obese_summary
+```
+
+From the results of the `by()` function, it is apparent that for `Standing`, those in the `Lean` group tend to spend more time in comparison to the `Obese` group. As for `Sitting`, those in the `Obese` group tend to spend more time in comparison to the `Lean` group. For `Lying` time, although the `Lean` group does expend more time than the `Obese` group, the differences aren't that significant to draw a massive conclusion from `Lying Time`. It appears that for more menial tasks, the `Obese` group tends to expend more time, while the `Lean` group tends to expend more time on tasks that require more energy.
+
+### 3h) What conclusion can you make from the previous analysis? (3 points)
+
+### Solution:
+
+Based on the previous analysis, it is apparent for more `menial` tasks, such as `sitting`, those in the `obese` group spend more time in comparison to tasks that require more energy such as `standing`. As for the `lean` group, it appears that they spend more time on tasks that require more energy such as `standing` and `lying down`, and less on more menial tasks such as `sitting`.
