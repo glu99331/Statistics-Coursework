@@ -1,0 +1,301 @@
+---
+title: "STAT 1331 - Assignment 1"
+author: "Gordon Lu"
+date: "9/1/2020"
+output:   
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1:
+Consider an investor who bought an asset at time t for $100. The investor hold the asset for two periods. The price of the asset was $90 and $105 at time t + 1 and t + 2, respectively.
+
+Given:
+
+$$
+P_t = 100
+$$
+$$
+k = 2
+$$
+$$
+P_{t+1} = 90
+$$
+$$
+P_{t+2} = 105
+$$
+1a) Compute the multiperiod simple return.
+
+### Solution:
+$$
+1 + R_t(2) = \prod_{j=0}^{2-1}(1+R_{t-j}) = \prod_{j=0}^{1}(1+R_{t-j})
+$$
+$$
+= (1 + R_{t+2})(1 + R_{t+1})
+$$
+$$
+= (1 + \frac{P_{t+2}-P_{t+1}}{P_{t+1}})(1 + \frac{P_{t+1}-P_{t}}{P_{t}})
+$$
+$$
+= (1 + \frac{105-90}{90})(1 + \frac{90-100}{100})
+$$
+$$
+= (\frac{7}{6} + \frac{9}{10}) = \frac{31}{15} \approx 2.07
+$$
+Thus the multiperiod simple return is approximately 2.07%.
+
+1b) Compute the one period simple return at (t + 1) and (t + 2)
+
+### Solution:
+The one-period simple return at time (t + 1) is:
+
+$$
+R_{t+1} = (1 + \frac{P_{t+1} - P_t}{P_t})
+$$
+$$
+= (1 + \frac{90 - 100}{100})
+$$
+$$
+= \frac{9}{10} = 0.90
+$$
+The one-period simple return at time (t + 2) is:
+
+$$
+R_{t+2} = (1 + \frac{P_{t+2} - P_{t+1}}{P_{t+1}})
+$$
+
+$$
+= (1 + \frac{105 - 90}{90})
+$$
+
+$$
+= \frac{7}{6} \approx 1.67
+$$
+Thus the one-period simple return at time (t + 1) is approximately 0.90%, and at time (t + 2) is approximately 1.67%.
+
+1c) What is the relationship between the multiperiod simple return and the one period simple returns?
+
+### Solution:
+The multiperiod simple return is the product of k one-period simple returns. The one-period simple return is a partial produce of the multiperiod simple return.
+
+1d) Compute the multiperiod continuously compounded return.
+
+### Solution:
+
+$$
+r_t(k) = \ln(1+R_t(k)) = \sum_{i=0}^{k-1} r_{t - i}
+$$
+$$
+r_t(2) = \ln(1 + R_t(2))
+$$
+$$
+= \ln((1 + R_{t+2})(1 + R_{t+1}))
+$$
+$$
+= \ln(1 + R_{t+2}) + \ln(1 + R_{t+1})
+$$
+$$
+= \ln(1 + \frac{P_{t+2}-P_{t+1}}{P_{t+1}}) + \ln(1 + \frac{P_{t+1}-P_{t}}{P_{t}})
+$$
+$$
+= \ln(\frac{7}{6}) + \ln(\frac{9}{10}) \approx 0.049
+$$
+
+Thus, the multiperiod continously compounded return is approximately 0.049%
+
+1e) Compute the one period continuously compounded return at time (t + 1) and (t + 2).
+
+### Solution:
+The one-period continuously compounded return at time (t + 1) is:
+
+$$
+r_{t+1} = \ln(1 + R_{t+1})
+$$
+
+$$
+= \ln(1 + \frac{P_{t+1}-P_{t}}{P_{t}})
+$$
+$$
+= \ln(\frac{9}{10}) \approx -0.105
+$$
+The one-period continuously compounded return at time (t + 2) is:
+
+$$
+r_{t+2} = \ln(1 + R_{t+2})
+$$
+
+$$
+= \ln(1 + \frac{P_{t+2}-P_{t+1}}{P_{t+1}})
+$$
+$$
+= \ln(\frac{7}{6}) \approx 0.154
+$$
+Thus the one-period simple return at time (t + 1) is approximately -0.105%, and at time (t + 2) is approximately 0.154%.
+
+1f) What is the relationship between the multiperiod continuouslycompounded return and the one period continuously compounded returns?
+
+### Solution:
+The multiperiod continuously componded return is the sum of k one-period continuously compounded returns. The one-period continuously componded return is a partial sum of the multiperiod continuously compounded return.
+
+## Problem 2: Solve exercises 1,2,3 and 4 of Chapter 1 from Tsay(2013). The required dataset is available on Canvas.
+
+## Exercise I: 
+### 1a) Compute the sample mean, standard deviation, skewness, excess kurtosis, minimum, and maximum of each simple return series.
+
+### Solution:
+```{r, eval = TRUE}
+library(fBasics)
+rm(list = ls()) # clear the data environment
+simple_return_series <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/d-axp3dx-0111.txt", header = TRUE) #read in file
+#display 5 number summary
+summary(simple_return_series[, c(seq(2,5,1))]) #get five number summary for all return series, but disregard date column
+#display skewness for all return series, disregarding the date column
+skewness(simple_return_series[, c(seq(2,5,1))])
+#display kurtosis for all return series, disregarding the date column
+kurtosis(simple_return_series[, c(seq(2,5,1))])
+# simple_return_series
+```
+
+### 1b) Transform the simple returns to log returns. Compute the sample mean, standard deviation, skewness, excess kurtosis, minimum, and maximum of each log return series.
+
+### Solution:
+```{r, eval = TRUE}
+log_returns_1 <- log(simple_return_series[, c(seq(2,5,1))]+1)
+summary(log_returns_1)
+#display skewness for all return series, disregarding the date column
+skewness(log_returns_1)
+#display kurtosis for all return series, disregarding the date column
+kurtosis(log_returns_1)
+```
+
+### 1c) Test the null hypothesis that the mean of the log returns of AXP stock is zero. Use 5% significance level to draw your conclusion.
+
+### Solution:
+```{r, eval = TRUE}
+t.test(log_returns_1$axp, mean = 0, conf.level = 0.95)
+```
+
+### Conclusion:
+
+Since p > 0.05, we fail to reject the null hypothesis. In other words, we do not have sufficient evidence to conclude that 
+the mean of the log returns of AXP stock differs significantly from zero.
+
+## Exercise II: 
+### 2a) Compute the sample mean, standard deviation, skewness, excess kurtosis, minimum, and maximum of each simple return series.
+
+### Solution:
+```{r, eval = TRUE}
+simple_return_series <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/m-ge3dx-4011.txt", header = TRUE, na.strings = '.') #read in file
+# simple_return_series$sp
+# display 5 number summary
+summary(simple_return_series[, c(seq(2,5,1))]) #get five number summary for all return series, but disregard date column
+#display skewness for all return series, disregarding the date column
+skewness(simple_return_series[, c(seq(2,5,1))], na.rm = TRUE)
+#display kurtosis for all return series, disregarding the date column
+kurtosis(simple_return_series[, c(seq(2,5,1))], na.rm = TRUE)
+```
+
+### 2b) Transform the simple returns to log returns. Compute the sample mean, standard deviation, skewness, excess kurtosis, minimum, and maximum of each log return series.
+
+### Solution:
+```{r, eval = TRUE}
+log_returns_2 <- log(simple_return_series[, c(seq(2,5,1))]+1)
+summary(log_returns_2)
+#display skewness for all return series, disregarding the date column
+skewness(log_returns_2)
+#display kurtosis for all return series, disregarding the date column
+kurtosis(log_returns_2)
+```
+
+### 2c) Test the null hypothesis that the mean of the log returns of AXP stock is zero. Use 5% significance level to draw your conclusion.
+
+### Solution:
+```{r, eval = TRUE}
+t.test(log_returns_2$ge, mean = 0, conf.level = 0.95)
+```
+
+### Conclusion: 
+
+Since p < 0.05, we reject the null hypothesis. In other words, we have sufficient evidence to conclude that 
+the mean of the log returns of GE stock differs significantly from zero.
+
+## Exercise III: 
+### Consider the monthly stock returns of S&P composite index from January 1940 to September 2011 in Problem 2. Perform the following tests and draw conclusions using the 5% significance level.
+
+### 3a) Test $H_0: \mu = 0$ versus $H_a : \mu \neq 0$, where $\mu$ denotes the mean return.
+
+### Solution:
+```{r, eval = TRUE}
+#Via Snedecor and Cochran, the t-ratio statistic of the sample 
+t.test(simple_return_series$sp, mean = 0, conf.level = 0.95) #use log returns or just regular returns?
+```
+
+### Conclusion: 
+
+Since p < 0.05, we reject the null hypothesis. In other words, we have sufficient evidence to conclude that 
+the mean returns of the GE stock differs significantly from zero.
+
+### 3b) Test $H_0: m_3 = 0$ versus $H_a : m_3 \neq 0$, where $m_3$ denotes the skewness.
+
+### Solution:
+```{r, eval = TRUE}
+#Via Snedecor and Cochran, the t-ratio statistic of the sample skewness is: S(r)/sqrt(6/T)
+nrow(simple_return_series) #num entries in the data frame
+skew_ge <- skewness(simple_return_series$ge)
+skew_stat <- skew_ge/(sqrt(6/nrow(simple_return_series)))
+skew_stat
+```
+
+### Conclusion: 
+
+Since |t| < $Z_{1 - 0.05/2}$ = |t| < 1.96, so we fail to reject the null hypothesis. In other words, we do not have sufficient evidence to conclude that the skewness measure of the returns for the GE stock is not zero.
+
+### 3c) Test $H_0: K - 3 = 0$ versus $H_a : K - 3 \neq 0$, where $K$ denotes the kurtosis.
+
+### Solution:
+```{r, eval = TRUE}
+#Via Snedecor and Cochran, the t-ratio statistic of the sample excess kurtosis is: K(r)-3/sqrt(24/T)
+nrow(simple_return_series) #num entries in the data frame
+kurtosis_ge <- kurtosis(simple_return_series$ge)
+kurtosis_stat <- (kurtosis_ge - 3)/(sqrt(6/nrow(simple_return_series)))
+kurtosis_stat
+```
+
+### Conclusion: 
+
+Since |t| > $Z_{1 - 0.05/2}$ = |t| > 1.96, so we reject the null hypothesis. In other words, we do have sufficient evidence to conclude that the excess kurtosis of the mean returns for the GE stock is not zero.
+
+## Exercise IV: 
+### Consider the daily log returns of American Express stock from September 1, 2001 to September 30, 2011 as in Problem 1. Use the 5% significance level to perform the following tests:
+
+### 4a) Test the null hypothesis that the skewness measure of the returns is zero 
+
+```{r, eval = TRUE}
+#Via Snedecor and Cochran, the t-ratio statistic of the sample skewness is: S(r)/sqrt(6/T)
+nrow(log_returns_1) #num entries in the data frame
+skew_axp <- skewness(log_returns_1$axp)
+skew_stat <- skew_axp/(sqrt(6/nrow(log_returns_1)))
+skew_stat
+```
+
+### Conclusion: 
+
+Since |t| < $Z_{1 - 0.05/2}$ = |t| < 1.96, so we fail to reject the null hypothesis. In other words, we do not have sufficient evidence to conclude that the skewness measure of the log returns for American Express stock is not zero.
+
+### 4b) Test the null hypothesis that the excess kurtosis measure of the returns is zero 
+
+```{r, eval = TRUE}
+#Via Snedecor and Cochran, the t-ratio statistic of the sample excess kurtosis is: K(r)-3/sqrt(24/T)
+nrow(log_returns_1) #num entries in the data frame
+kurtosis_axp <- kurtosis(log_returns_1$axp)
+kurtosis_stat <- kurtosis_axp/(sqrt(6/nrow(log_returns_1)))
+kurtosis_stat
+```
+
+### Conclusion: 
+
+Since |t| > $Z_{1 - 0.05/2}$ = |t| > 1.96, so we reject the null hypothesis. In other words, we do have sufficient evidence to conclude that the excess kurtosis of the log returns for the American Express stock is not zero.

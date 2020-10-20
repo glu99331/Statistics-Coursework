@@ -1,0 +1,674 @@
+---
+title: "STAT 1331 - Assignment 2"
+author: "Gordon Lu"
+date: "9/29/2020"
+output:   
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1:
+Let {$x_t$ for t = ..., -2, -1, 0, 1, 2, ...} be a time series process.
+
+## 1a) What does it mean when we say $x_t$ is weakly stationary?
+
+### Solution:
+For $x_t$ to be regarded as a weakly stationary process it must have constant mean and variance, and the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ...$
+
+## 1b) Suppose $x_t = \sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j}$, where $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all `t'`. Show that $x_t$ is weakly stationary.
+
+### Solution:
+For $x_t$ to be regarded as a weakly stationary process it must have constant mean and variance, and the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ..., n$
+
+$\mathbf{Constant}$ $\mathbf{Mean}$:
+
+First, we must prove that the time series process has constant mean, across time. 
+$$
+E(x_t) = \sum_{j=0}^{4}\alpha_{j}E(\varepsilon_{t-j})
+$$
+
+
+Since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $E(\varepsilon_{t-j}) = 0$. Thus we can conclude that:
+
+$$
+E(x_t) = \sum_{j=0}^{4}\alpha_{j}E(\varepsilon_{t-j}) 
+$$
+
+$$
+= \sum_{j=0}^{4}\alpha_{j}\times 0 = 0
+$$
+
+$\mathbf{Constant}$ $\mathbf{Variance}$:
+
+Now, we must prove that the time series process has constant variance, across time. 
+$$
+var(X_t) = var(\sum_{j=0}^{4}\alpha_{j}E(\varepsilon_{t-j}))
+$$
+
+Recall that $var(aX) = a^2var(X)$. Thus, we have:
+
+$$
+= \sum_{j=0}^{4}\alpha_{j}^2var(\varepsilon_{t-j})
+$$
+
+Since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $var(\varepsilon_{t-j}) = \sigma_\varepsilon^2$. Thus we can conclude that:
+
+$$
+\sum_{j=0}^{4}\alpha_{j}^2var(\varepsilon_{t-j})
+$$
+
+$$
+= \sum_{j=0}^{4}\alpha_{j}^2\sigma_\varepsilon^2
+$$
+
+Since $\sigma_\varepsilon^2$ has no dependency on the iteration variable, `j`, we can pull it outside of the summation. Thus, we have the following:
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{4}\alpha_{j}^2
+$$
+
+Note that this final result has no variables attached, thus we can conclude that the variance is constant, and has no dependencies on time.
+
+$\mathbf{Covariance}$ $\mathbf{Depending}$ $\mathbf{Only}$ $\mathbf{on}$ $\mathbf{Distance}$ $\mathbf{Between}$ $\mathbf{Times}$:
+
+Finally, we must show that the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ...$
+
+Formally, we want to show that: 
+$$
+\gamma(t, t_\tau) = cov(x_t, x_{t-\tau})
+$$
+
+$$
+= E(x_t, x_{t-\tau}) - E(x_t)E(x_{t-\tau})
+$$
+
+$$
+= \gamma(\tau)
+$$
+where $\tau = 1, 2, ...$
+
+Starting out with the definition of covariance, we have:
+
+$$
+cov(x_t, x_{t-\tau})
+$$
+
+$$
+= E[(x_t)(x_{t-\tau})] - E(x_t)E(x_{t-\tau})
+$$
+
+$$
+= E[(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})] - E(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})E(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+However, since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $E(\varepsilon_{t-j}) = 0$. Thus we can conclude that:
+
+$$
+= E[(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})] - E(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})E(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+$$
+= E[(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})] - 0\times E(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+$$
+= E[(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})]
+$$
+
+Further expanding on our Expectation, we get:
+
+$$
+E[(\sum_{j=0}^{4}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{4}\alpha_{k}\varepsilon_{t-\tau-k})]
+$$
+
+$$
+= \sum_{j=0}^{4}\sum_{k=0}^{4}\alpha_{j}\alpha_{k}E[(\varepsilon_{t-j}\varepsilon_{t-\tau-k})]
+$$
+
+$$
+= \sum_{j=0}^{4}\alpha_{j}\alpha_{j-\tau}E[(\varepsilon_{t-j}^2)]
+$$
+
+However, since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $var(\varepsilon_{t-j}) = \sigma_\varepsilon^2$. Thus we can say that:
+
+$$
+\sum_{j=0}^{4}\alpha_{j}\alpha_{j-\tau}E[(\varepsilon_{t-j}^2)]
+$$
+
+$$
+= \sum_{j=0}^{4}\alpha_{j}\alpha_{j-\tau}(\sigma_\varepsilon^2)
+$$
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{4}\alpha_{j}\alpha_{j-\tau}
+$$
+
+Note we have $\sigma_\varepsilon^2$, which is a constant, and $\alpha_j$ and $\alpha_{j-\tau}$, thus it is evident that the covariance solely depends on `j` and $j-\tau$. We must show that the covariance will be some number, and not yield $\infty$. In other words, we must show that $\sum_{j=0}^{4}\alpha_{j}\alpha_{j-\tau} < \infty$. Since our summation only extends to `4`, we can guarantee that our summation will be less than $\infty$. We can say $\alpha_j$ and $\alpha_{j-\tau}$ will be $< \infty$. Thus, we can conclude that 
+
+$$
+\gamma(|j - (j - \tau)|) = \gamma(\tau)
+$$
+Implying that the covariance does in fact only depend on the distances between two distances in time.
+
+Thus, putting it all together, since the time series process, $x_t$ has constant mean, constant variance, and covariance that solely depends on the distance between two times, we can say that $x_t$ is a weakly stationary process.
+
+## 1c) Suppose $x_t = \sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j}$, where $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all `t'` and `n` is a positive constant. Show that $x_t$ is weakly stationary.
+
+### Solution:
+For $x_t$ to be regarded as a weakly stationary process it must have constant mean and variance, and the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ..., n$
+
+$\mathbf{Constant}$ $\mathbf{Mean}$:
+
+First, we must prove that the time series process has constant mean, across time. 
+$$
+E(x_t) = \sum_{j=0}^{n}\alpha_{j}E(\varepsilon_{t-j})
+$$
+
+
+Since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $E(\varepsilon_{t-j}) = 0$. Thus we can conclude that:
+
+$$
+E(x_t) = \sum_{j=0}^{n}\alpha_{j}E(\varepsilon_{t-j}) 
+$$
+
+$$
+= \sum_{j=0}^{n}\alpha_{j}\times 0 = 0
+$$
+
+$\mathbf{Constant}$ $\mathbf{Variance}$:
+
+Now, we must prove that the time series process has constant variance, across time. 
+$$
+var(X_t) = var(\sum_{j=0}^{n}\alpha_{j}E(\varepsilon_{t-j}))
+$$
+
+Recall that $var(aX) = a^2var(X)$. Thus, we have:
+
+$$
+= \sum_{j=0}^{n}\alpha_{j}^2var(\varepsilon_{t-j})
+$$
+
+Since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $var(\varepsilon_{t-j}) = \sigma_\varepsilon^2$. Thus we can conclude that:
+
+$$
+\sum_{j=0}^{n}\alpha_{j}^2var(\varepsilon_{t-j})
+$$
+
+$$
+= \sum_{j=0}^{n}\alpha_{j}^2\sigma_\varepsilon^2
+$$
+
+Since $\sigma_\varepsilon^2$ has no dependency on the iteration variable, `j`, we can pull it outside of the summation. Thus, we have the following:
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{n}\alpha_{j}^2
+$$
+
+Note that this final result has no variables attached, thus we can conclude that the variance is constant, and has no dependencies on time.
+
+$\mathbf{Covariance}$ $\mathbf{Depending}$ $\mathbf{Only}$ $\mathbf{on}$ $\mathbf{Distance}$ $\mathbf{Between}$ $\mathbf{Times}$:
+
+Finally, we must show that the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ..., n$
+
+Formally, we want to show that: 
+$$
+\gamma(t, t_\tau) = cov(x_t, x_{t-\tau})
+$$
+
+$$
+= E(x_t, x_{t-\tau}) - E(x_t)E(x_{t-\tau})
+$$
+
+$$
+= \gamma(\tau)
+$$
+where $\tau = 1, 2, ..., n$
+
+Starting out with the definition of covariance, we have:
+
+$$
+cov(x_t, x_{t-\tau})
+$$
+
+$$
+= E[(x_t)(x_{t-\tau})] - E(x_t)E(x_{t-\tau})
+$$
+
+$$
+= E[(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})] - E(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})E(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+However, since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $E(\varepsilon_{t-j}) = 0$. Thus we can conclude that:
+
+$$
+= E[(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})] - E(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})E(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+$$
+= E[(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})] - 0\times E(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+$$
+= E[(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})]
+$$
+
+Further expanding on our Expectation, we get:
+
+$$
+E[(\sum_{j=0}^{n}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{n}\alpha_{k}\varepsilon_{t-\tau-k})]
+$$
+
+$$
+= \sum_{j=0}^{n}\sum_{k=0}^{n}\alpha_{j}\alpha_{k}E[(\varepsilon_{t-j}\varepsilon_{t-\tau-k})]
+$$
+
+$$
+= \sum_{j=0}^{n}\alpha_{j}\alpha_{j-\tau}E[(\varepsilon_{t-j}^2)]
+$$
+
+However, since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $var(\varepsilon_{t-j}) = \sigma_\varepsilon^2$. Thus we can say that:
+
+$$
+\sum_{j=0}^{n}\alpha_{j}\alpha_{j-\tau}E[(\varepsilon_{t-j}^2)]
+$$
+
+$$
+= \sum_{j=0}^{n}\alpha_{j}\alpha_{j-\tau}(\sigma_\varepsilon^2)
+$$
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{n}\alpha_{j}\alpha_{j-\tau}
+$$
+
+Note we have $\sigma_\varepsilon^2$, which is a constant, and $\alpha_j$ and $\alpha_{j-\tau}$, thus it is evident that the covariance solely depends on `j` and $j-\tau$. It is also important to note the differences between this result and the result from `(b)`. In this case, we have our summation extending to `n`, which is a generalization of `(b)`. We must show that $\sum_{j=0}^{n}\alpha_{j}\alpha_{j-\tau} < \infty$. Since our summation only extends to a positive constant, `n`, we can guarantee that our summation will be less than $\infty$. We can say $\alpha_j$ and $\alpha_{j-\tau}$ will be $< \infty$. Thus, we can conclude that 
+
+$$
+\gamma(|j - (j - \tau)|) = \gamma(\tau)
+$$
+Implying that the covariance does in fact only depend on the distances between two distances in time.
+
+Thus, putting it all together, since the time series process, $x_t$ has constant mean, constant variance, and covariance that solely depends on the distance between two times, we can say that $x_t$ is a weakly stationary process.
+
+## 1d) Suppose $x_t = \sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j}$, where $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all `t'`. Show that $x_t$ is weakly stationary if $\sum_{j=0}^{\infty}\alpha_j^2 \leq c < \infty$, where `c` is a positive constant.
+
+### Solution:
+
+For $x_t$ to be regarded as a weakly stationary process it must have constant mean and variance, and the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ..., \infty$
+
+$\mathbf{Constant}$ $\mathbf{Mean}$:
+
+First, we must prove that the time series process has constant mean, across time. 
+$$
+E(x_t) = \sum_{j=0}^{\infty}\alpha_{j}E(\varepsilon_{t-j})
+$$
+
+
+Since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $E(\varepsilon_{t-j}) = 0$. Thus we can conclude that:
+
+$$
+E(x_t) = \sum_{j=0}^{\infty}\alpha_{j}E(\varepsilon_{t-j}) 
+$$
+
+$$
+= \sum_{j=0}^{\infty}\alpha_{j}\times 0 = 0
+$$
+
+$\mathbf{Constant}$ $\mathbf{Variance}$:
+
+Now, we must prove that the time series process has constant variance, across time. 
+$$
+var(X_t) = var(\sum_{j=0}^{\infty}\alpha_{j}E(\varepsilon_{t-j}))
+$$
+
+Recall that $var(aX) = a^2var(X)$. Thus, we have:
+
+$$
+= \sum_{j=0}^{\infty}\alpha_{j}^2var(\varepsilon_{t-j})
+$$
+
+Since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $var(\varepsilon_{t-j}) = \sigma_\varepsilon^2$. Thus we can conclude that:
+
+$$
+\sum_{j=0}^{\infty}\alpha_{j}^2var(\varepsilon_{t-j})
+$$
+
+$$
+= \sum_{j=0}^{\infty}\alpha_{j}^2\sigma_\varepsilon^2
+$$
+
+Since $\sigma_\varepsilon^2$ has no dependency on the iteration variable, `j`, we can pull it outside of the summation. Thus, we have the following:
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{\infty}\alpha_{j}^2
+$$
+
+Note that this final result has no variables attached, thus we can conclude that the variance is constant, and has no dependencies on time.
+
+$\mathbf{Covariance}$ $\mathbf{Depending}$ $\mathbf{Only}$ $\mathbf{on}$ $\mathbf{Distance}$ $\mathbf{Between}$ $\mathbf{Times}$:
+
+Finally, we must show that the covariance between $x_{t}$ and $x_{t_\tau}$ depends only on the  distance |${t - t_\tau}$|, where $\tau = 1, 2, ..., \infty$
+
+Formally, we want to show that: 
+$$
+\gamma(t, t_\tau) = cov(x_t, x_{t-\tau})
+$$
+
+$$
+= E(x_t, x_{t-\tau}) - E(x_t)E(x_{t-\tau})
+$$
+
+$$
+= \gamma(\tau)
+$$
+where $\tau = 1, 2, ..., \infty$
+
+Starting out with the definition of covariance, we have:
+
+$$
+cov(x_t, x_{t-\tau})
+$$
+
+$$
+= E[(x_t)(x_{t-\tau})] - E(x_t)E(x_{t-\tau})
+$$
+
+$$
+= E[(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})] - E(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})E(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+However, since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $E(\varepsilon_{t-j}) = 0$. Thus we can conclude that:
+
+$$
+= E[(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})] - E(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})E(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+$$
+= E[(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})] - 0\times E(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})
+$$
+
+$$
+= E[(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})]
+$$
+
+Further expanding on our Expectation, we get:
+
+$$
+E[(\sum_{j=0}^{\infty}\alpha_{j}\varepsilon_{t-j})(\sum_{k=0}^{\infty}\alpha_{k}\varepsilon_{t-\tau-k})]
+$$
+
+$$
+= \sum_{j=0}^{\infty}\sum_{k=0}^{\infty}\alpha_{j}\alpha_{k}E[(\varepsilon_{t-j}\varepsilon_{t-\tau-k})]
+$$
+
+$$
+= \sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau}E[(\varepsilon_{t-j}^2)]
+$$
+
+However, since $\varepsilon_{t'}$ ~ iid(0,$\sigma_\varepsilon^2$) for all t', we can say that $var(\varepsilon_{t-j}) = \sigma_\varepsilon^2$. Thus we can say that:
+
+$$
+\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau}E[(\varepsilon_{t-j}^2)]
+$$
+
+$$
+= \sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau}(\sigma_\varepsilon^2)
+$$
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau}
+$$
+
+Note we have $\sigma_\varepsilon^2$, which is a constant, and $\alpha_j$ and $\alpha_{j-\tau}$, thus it is evident that the covariance solely depends on `j` and $j-\tau$. In this case, we have our summation extending to $\infty$, we cannot guarantee that our summation is < $\infty$. So, we must show that $\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau} < \infty$. 
+By making use of the fact that $\sum_{j=0}^{\infty}\alpha_j^2 \leq c < \infty$, we can use the Cauchy-Schwartz Inequality to say:
+
+$$
+\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau} \leq (\sum_{j=0}^{\infty}\alpha_j^2)^{1/2}(\sum_{j=0}^{\infty}\alpha_{j-\tau}^2)^{1/2}
+$$
+Making use of the observation that $\sum_{j=0}^{\infty}\alpha_j^2 \leq c < \infty$, we can say that the right-hand side, $(\sum_{j=0}^{\infty}\alpha_j^2)^{1/2}(\sum_{j=0}^{\infty}\alpha_{j-\tau}^2)^{1/2}$ will evaluate to a constant. This will inadvertently leave us with: 
+
+$$
+\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau} \leq c < \infty
+$$
+where `c` is a positive constant. Thus, this will allow to say that, by linearity, that $\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau} < \infty$. So, we can say $\alpha_j$ and $\alpha_{j-\tau}$ will be $< \infty$. Thus, we can conclude that 
+
+$$
+\gamma(|j - (j - \tau)|) = \gamma(\tau)
+$$
+Implying that the covariance does in fact only depend on the distances between two distances in time.
+
+Thus, putting it all together, since the time series process, $x_t$ has constant mean, constant variance, and covariance that solely depends on the distance between two times, we can say that $x_t$ is a weakly stationary process.
+
+# Problem 2:
+Consider the following AR(1) process,
+$$
+y_t = 0.5y_{t-1}+\varepsilon_t,
+$$
+where $\varepsilon_t$ ~ iid(0,1).
+
+## 2a) Find the coefficients ${\alpha_j}$ in the representation $y_t = \sum_{j=0}^{\infty}\alpha_j\varepsilon_{t-j}$. Use the result in part (d) of question 1 to conclude that $y_t$ is weakly stationary.
+
+### Solution:
+
+In order to see a pattern let's see what happens when we plug-in $0.5y_{t-2} + \varepsilon_{t-1}$ for $y_{t-1}$:
+
+$$
+y_t = 0.5y_{t-1}+\varepsilon_t
+$$
+
+$$
+y_t = 0.5(0.5y_{t-2} + \varepsilon_{t-1}) +\varepsilon_t
+$$
+
+$$
+y_t = (0.5)^2y_{t-2} + (0.5\varepsilon_{t-1} +\varepsilon_t)
+$$
+
+If we further plug-in $0.5y_{t-3} + \varepsilon_{t-2}$ for $y_{t-2}$, we have:
+
+$$
+y_t = 0.5(0.5y_{t-2} + \varepsilon_{t-1}) +\varepsilon_t
+$$
+
+$$
+y_t = 0.5(0.5[(0.5y_{t-3} + \varepsilon_{t-2}) + \varepsilon_{t-1}]) +\varepsilon_t
+$$
+$$
+y_t = (0.5)^3y_{t-3} + (0.5^2\varepsilon_{t-2} + 0.5\varepsilon_{t-1} + \varepsilon_t)
+$$
+
+Thus, generally, if we interested in seeing the behavior of the process $y_t$, where n is the total amount of time elapsed so far, we have the following:
+
+$$
+y_{t} = (0.5)^n y_{t-n} + \sum_{j=0}^{n-1}(0.5)^j\varepsilon_{t-j}
+$$
+
+Thus, in the representation, $y_t = \sum_{j=0}^{\infty}\alpha_j\varepsilon_{t-j}$, we have:
+
+$$
+y_t = \sum_{j=0}^{\infty}(0.5)^j\varepsilon_{t-j}
+$$
+
+Thus, in this case, we have the coefficient ${\alpha_j}$ is $\sum_{j=0}^{\infty}(0.5)^j$.
+
+## 2b) Find the mean of $y_t$.
+
+### Solution:
+
+From part (a), we have:
+$$
+y_t = \sum_{j=0}^{\infty}(0.5)^j\varepsilon_{t-j}
+$$
+
+Since $\varepsilon_t$ ~ iid(0, 1), we can say that E($\varepsilon_{t-j}$) = 0. Thus, we have:
+
+$$
+E(y_t) = E(\sum_{j=0}^{\infty}(0.5)^j\varepsilon_{t-j})
+$$
+$$
+= \sum_{j=0}^{\infty}(0.5)^jE(\varepsilon_{t-j})
+$$
+
+
+$$
+= \sum_{j=0}^{\infty}(0.5)^j\times 0
+$$
+
+$$
+= 0
+$$
+
+Thus, we have that the mean of $y_t$ = 0.
+
+## 2c) Find the variance of $y_t$.
+
+### Solution:
+
+From part (a), we have:
+
+$$
+y_t = \sum_{j=0}^{\infty}(0.5)^j\varepsilon_{t-j}
+$$
+
+Since $\varepsilon_t$ ~ iid(0, 1), we can say that var($\varepsilon_{t-j}$) = 1. Thus, we have:
+
+$$
+var(y_t) = var(\sum_{j=0}^{\infty}(0.5)^j\varepsilon_{t-j})
+$$
+
+$$
+= var(\sum_{j=0}^{\infty}(0.5)^j\times 1)
+$$
+
+$$
+= var(\sum_{j=0}^{\infty}(0.5)^j)
+$$
+
+Recall from question 1, part (d), we derived that the variance for a time series process of the form $y_t = \sum_{j=0}^{\infty}\alpha_j\varepsilon_{t-j}$ has variance: $\sigma_\varepsilon^2\sum_{j=0}^{\infty}\alpha_{j}^2$. In this case, we have $\alpha_j = \sum_{j=0}^{\infty}(0.5)^j$. Plugging in, we have the following:
+
+$$
+var(\sum_{j=0}^{\infty}(0.5)^j)
+$$
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{\infty}(0.5)^j
+$$
+
+Recall that $\varepsilon_t$ ~ iid(0, 1), we can say that $\sigma_{\varepsilon}^2$ = 1. Thus, we have:
+
+$$
+\sigma_\varepsilon^2\sum_{j=0}^{\infty}(0.5)^j
+$$
+
+$$
+= 1 \times \sum_{j=0}^{\infty}(0.5)^j
+$$
+
+$$
+= \sum_{j=0}^{\infty}(0.5)^j
+$$
+
+Note, that this is a sum of an infinite geometric series with a common ratio of $r = 0.5$. Thus, we can solve for the geometric series as:
+
+$$
+\sum_{j=0}^{\infty}(0.5)^j
+$$
+
+$$
+= \frac{\frac{1}{2}}{1-\frac{1}{2}} = 1
+$$
+
+Thus, we can conclude that the variance of $y_t$ is 1.
+
+## 2d) Find the auto-covariance function of $y_t$.
+
+### Solution:
+
+Recall in question 1, part (d), we derived that a time series process of the form $y_t = \sum_{j=0}^{\infty}\alpha_j\varepsilon_{t-j}$, has covariance: $\sigma_\varepsilon^2\sum_{j=0}^{\infty}\alpha_{j}\alpha_{j-\tau}$. In this case, we have $\alpha_j = \sum_{j=0}^{\infty}(0.5)^j$. Plugging in, we have the following:
+
+$$
+cov(y_t) = cov(\sum_{j=0}^{\infty}(0.5)^j\varepsilon_{t-j})
+$$
+
+$$
+= \sigma_\varepsilon^2\sum_{j=0}^{\infty}(0.5)^j(0.5)^{j-\tau}
+$$
+
+Recall that $\varepsilon_t$ ~ iid(0, 1), we can say that $\sigma_{\varepsilon}^2$ = 1. Thus, we have:
+
+$$
+\sigma_\varepsilon^2\sum_{j=0}^{\infty}(0.5)^j(0.5)^{j-\tau}
+$$
+$$
+= 1 \times \sum_{j=0}^{\infty}(0.5)^j(0.5)^{j-\tau}
+$$
+
+$$
+= \sum_{j=0}^{\infty}(0.5)^j(0.5)^{j-\tau}
+$$
+
+Writing out the $(0.5)^{j-\tau}$ term, inside of the summation, we have:
+
+$$
+\sum_{j=0}^{\infty}(0.5)^j(0.5)^{j-\tau}
+$$
+
+$$
+= \sum_{j=0}^{\infty}(0.5)^j(0.5)^{j}(0.5)^{-\tau}
+$$
+
+Since $(0.5)^{-\tau}$ does not depend on the iteration variable `j`, we can take it outside of the summation, and get:
+
+$$
+\sum_{j=0}^{\infty}(0.5)^j(0.5)^{j}(0.5)^{-\tau}
+$$
+
+$$
+= (0.5)^{-\tau}\sum_{j=0}^{\infty}(0.5)^j(0.5)^{j}
+$$
+
+$$
+= (0.5)^{-\tau}\sum_{j=0}^{\infty}(0.5)^{2j}
+$$
+
+$$
+= (0.5)^{-\tau}\sum_{j=0}^{\infty}(0.25)^{j}
+$$
+
+Note, that this is a sum of an infinite geometric series with a common ratio of $r = 0.25$. Thus, we can solve for the geometric series as:
+
+$$
+(0.5)^{-\tau}\sum_{j=0}^{\infty}(0.25)^j
+$$
+
+$$
+= (0.5)^{-\tau}(\frac{\frac{1}{4}}{1-\frac{1}{4}})
+$$
+
+$$
+= (0.5)^{-\tau}(\frac{\frac{1}{4}}{\frac{3}{4}}) = (0.5)^{-\tau}(\frac{1}{3}) 
+$$
+
+Thus, we can say that the auto-covariance function of $y_t$ is: $(0.5)^{-\tau}(\frac{1}{3})$, where $\tau = 1, 2, ..., \infty$.
+
+# Problem 3:
+Consider the following autoregressive processes,
+
+a) $y_t = 3 - 0.3y_{t-1} + 0.04y_{t-2} + \varepsilon_t$
+
+b) $y_t = 5 - 3.1y_{t-1} + 0.03y_{t-2} + \varepsilon_t$
+
+c) $y_t = 2.5y_{t-1} - 2y_{t-2} + 0.5y_{t-3} + \varepsilon_t$
+
+where $\varepsilon_t$ ~ iid(0, $\sigma^2$). 
+
+Which ones are weakly stationary?
+
+## Solution:
+
+I believe that (a) is a weakly stationary autoregressive process, while (b) and (c) are not weakly stationary processes.
+Upon inspection, as we begin to plug in terms recursively for each process, we see that (a) will begin to get smaller and smaller, and converge to a certain value. However, for processes (b) and (c) it appears indeterminate as to the whereabout, as it seems to grow larger and larger, implying that the series will diverge, and inadvertently fail the property of a weakly stationary process determined in question 1, part (d)
+
