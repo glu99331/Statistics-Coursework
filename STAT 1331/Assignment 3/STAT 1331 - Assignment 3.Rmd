@@ -1,0 +1,1240 @@
+---
+title: "STAT 1331 - Assignment 3"
+author: "Gordon Lu"
+date: "10/27/2020"
+output:   
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Problem 1:
+Consider the following MA(1) process, $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$, where $\varepsilon_t$ ~ iid(0,1).
+
+
+## 1a) Find the mean of $y_t$.
+
+### Solution:
+Our approach here, will rely on taking the expectation of $y_t$.
+Given,
+$$
+y_t = \varepsilon_t - 1.2\varepsilon_{t-1}
+$$
+$$
+E(y_t) = E(\varepsilon_t - 1.2\varepsilon_{t-1})
+$$
+Expanding out the expectation on the right side, we get:
+$$
+E(y_t) = E(\varepsilon_t) - 1.2E(\varepsilon_{t-1})
+$$
+Since $\varepsilon_t$ ~ iid(0,1), the expectation of $y_t$ is 0 across time. Thus, we have the following:
+$$
+E(y_t) = E(\varepsilon_t) - 1.2E(\varepsilon_{t-1})
+$$
+$$
+E(y_t) = 0 - 1.2 \times 0
+$$
+$$
+E(y_t) = 0
+$$
+Thus, we can say that the mean of this MA(1) process, defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is zero.
+
+## 1b) Find the variance of $y_t$.
+
+### Solution:
+Our approach here, will rely on taking note of how $\varepsilon$ ~ iid(0,1).
+Given,
+$$
+y_t = \varepsilon_t - 1.2\varepsilon_{t-1}
+$$
+$$
+var(y_t) = var(\varepsilon_t - 1.2\varepsilon_{t-1})
+$$
+Expanding out the variance on the right side, we get:
+$$
+var(y_t) = var(\varepsilon_t - 1.2\varepsilon_{t-1})
+$$
+$$
+var(y_t) = var(\varepsilon_t) + 1.2^2var(\varepsilon_{t-1})
+$$
+Since $\varepsilon_t$ ~ iid(0,1), the variance of $y_t$ is $1$ across time. Thus, we have the following:
+$$
+var(y_t) = var(\varepsilon_t) + 1.2^2var(\varepsilon_{t-1})
+$$
+
+$$
+var(y_t) = 1 + 1.2^2 \times 1
+$$
+
+$$
+var(y_t) = 1 + 1.2^2 = 2.44
+$$
+Thus, we can say that the mean of this MA(1) process, defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is 2.44.
+
+## 1c) Find the auto-covariance of $y_t$.
+
+### Solution:
+Our approach here, will rely on taking note of certain properties of covariance.
+Given,
+$$
+y_t = \varepsilon_t - 1.2\varepsilon_{t-1}
+$$
+Let's denote the auto covariance function by $\gamma(1)$.
+$$
+\gamma(1) = cov(y_t, y_{t-1})
+$$
+$$
+\gamma(1) = cov(\varepsilon_{t} - 1.2\varepsilon_{t-1}, y_{t-1})
+$$
+Expanding on the covariance, we have:
+$$
+\gamma(1) = cov(\varepsilon_{t}, y_{t-1}) - 1.2cov(\varepsilon_{t-1}, y_{t-1})
+$$
+Since the term, $\varepsilon_{t}$ does not depend on the time $t-1$, the covariance of $\varepsilon_{t}$ with $y_{t-1}$ will be zero. Additionally, since the term $\varepsilon_{t-1}$ does depend on the time $t-1$, the covariance of $\varepsilon_{t-1}$ with $y_{t-1}$ will be $cov(\varepsilon_{t-1}, \varepsilon_{t-1})$. Thus, we have:
+
+$$
+\gamma(1) = cov(\varepsilon_{t}, y_{t-1}) - 1.2cov(\varepsilon_{t-1}, y_{t-1})
+$$
+
+$$
+\gamma(1) = 0 - 1.2cov(\varepsilon_{t-1}, y_{t-1})
+$$
+
+$$
+\gamma(1) = -1.2cov(\varepsilon_{t-1}, y_{t-1})
+$$
+
+$$
+\gamma(1) = -1.2cov(\varepsilon_{t-1}, \varepsilon_{t-1})
+$$
+Note that the covariance of a random variable with itself is just the variance, thus we are left with:
+$$
+\gamma(1) = -1.2cov(\varepsilon_{t-1}, \varepsilon_{t-1})
+$$
+
+$$
+\gamma(1) = -1.2var(\varepsilon_{t-1})
+$$
+
+$$
+\gamma(1) = -1.2\sigma_{\varepsilon}^2
+$$
+Since $\varepsilon_t$ ~ iid(0,1), we have:
+$$
+\gamma(1) = -1.2\sigma_{\varepsilon}^2
+$$
+$$
+\gamma(1) = -1.2 \times 1 = -1.2
+$$
+
+Therefore, we can say that the auto-covariance function for this MA(1) process defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is -1.2.
+
+## 1d) Find the one-step ahead forecast of $y_t$, $y_{t+1 | t}^f$ and the variance of the corresponding forecast error, $var(e_{t+1})$ where $e_{t+1} = y_{t+1} - y_{t+1|t}^f$.
+
+### Solution:
+To calculate the one-step ahead forecast, we will consider the expectation of the process at time $t+1$, given our information set.
+
+First, let's calculate the process at time $t+1$:
+$$
+y_{t+1} = \varepsilon_{t+1} - 1.2\varepsilon_{t}
+$$
+Now, we can calculate the one-step forecase of the process, using the following formula:
+$$
+y_{t+1}^f = E(y_{t+1}|I_t)
+$$
+By substituting the process at time $t+1$, we have:
+$$
+y_{t+1}^f = E(y_{t+1}|I_t)
+$$
+
+$$
+y_{t+1}^f = E(\varepsilon_{t+1} - 1.2\varepsilon_{t}|I_t)
+$$
+Expanding out our expectation, we have:
+$$
+y_{t+1}^f = E(\varepsilon_{t+1} - 1.2\varepsilon_{t}|I_t)
+$$
+$$
+y_{t+1}^f = E(\varepsilon_{t+1}|I_t) - 1.2E(\varepsilon_{t}|I_t)
+$$
+Now, using our information set at time $t$, we don't observe anything at any future time. Therefore, we don't observe the expection of $\varepsilon_{t+1}$ with the information set at time $t$. Thus the expectation is zero. With the expection of $\varepsilon_t$ conditional on the information set at time $t$, we do observe this, and will the corresponding expectation will be $\varepsilon_t$. Thus, we have:
+$$
+y_{t+1}^f = E(\varepsilon_{t+1}|I_t) - 1.2E(\varepsilon_{t}|I_t)
+$$
+$$
+y_{t+1}^f = 0 - 1.2E(\varepsilon_{t}|I_t)
+$$
+$$
+y_{t+1}^f = -1.2E(\varepsilon_{t}|I_t)
+$$
+$$
+y_{t+1}^f = -1.2\varepsilon_t
+$$
+Thus, the one-step ahead forecast of $y_t$, $y_{t+1 | t}^f$ is $-1.2\varepsilon_t$.
+
+Now, we must compute the variance of this one-step ahead forecast error. We must first calculate the corresponding forecast error, as the difference between the process at time $t+1$ and the forecast. Thus, for the one-step ahead forecast error, we have:
+$$
+e(y_{t+1}) = y_{t+1} - y_{t+1 | t}^f
+$$
+Substituting in for $y_{t+1}$ and $y_{t+1 | t}^f$, we have:
+$$
+e(y_{t+1}) = y_{t+1} - y_{t+1 | t}^f
+$$
+$$
+e(y_{t+1}) = (\varepsilon_{t+1} - 1.2\varepsilon_{t}) - y_{t+1 | t}^f
+$$
+$$
+e(y_{t+1}) = (\varepsilon_{t+1} - 1.2\varepsilon_{t}) - (-1.2\varepsilon_t)
+$$
+
+$$
+e(y_{t+1}) = (\varepsilon_{t+1} - 1.2\varepsilon_{t}) + (1.2\varepsilon_t)
+$$
+
+$$
+e(y_{t+1}) = \varepsilon_{t+1}
+$$
+Thus our one-step ahead forecasting error is: $\varepsilon_{t+1}$. Now, by taking the variance of the one-step ahead forecasting error, we have:
+$$
+var(y_{t+1}) = var(\varepsilon_{t+1})
+$$
+$$
+var(y_{t+1}) = \sigma_{\varepsilon}^2
+$$
+Note, that since $\varepsilon_t$ ~ iid(0,1), the variance of $\varepsilon_t$ will be 1. Thus, we have the following:
+$$
+var(y_{t+1}) = \sigma_{\varepsilon}^2
+$$
+
+$$
+var(y_{t+1}) = 1
+$$
+Therefore, we can say that the variance of the one-step ahead forecast for this MA(1) process defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is 1.
+
+## 1e) Find the two-step ahead forecast of $y_t$, $y_{t+2 | t}^f$ and the variance of the corresponding forecast error, $var(e_{t+2})$ where $e_{t+2} = y_{t+2} - y_{t+2|t}^f$.
+
+### Solution:
+To calculate the one-step ahead forecast, we will consider the expectation of the process at time $t+2$, given our information set.
+
+First, let's calculate the process at time $t+2$:
+$$
+y_{t+2} = \varepsilon_{t+2} - 1.2\varepsilon_{t+1}
+$$
+Now, we can calculate the one-step forecase of the process, using the following formula:
+$$
+y_{t+2}^f = E(y_{t+2}|I_t)
+$$
+By substituting the process at time $t+2$, we have:
+$$
+y_{t+2}^f = E(y_{t+2}|I_t)
+$$
+
+$$
+y_{t+2}^f = E(\varepsilon_{t+2} - 1.2\varepsilon_{t+1}|I_t)
+$$
+Expanding out our expectation, we have:
+$$
+y_{t+2}^f = E(\varepsilon_{t+2} - 1.2\varepsilon_{t+1}|I_t)
+$$
+$$
+y_{t+2}^f = E(\varepsilon_{t+2}|I_t) - 1.2E(\varepsilon_{t+1}|I_t)
+$$
+Now, using our information set at time $t$, we don't observe anything at any future time. Therefore, we don't observe the expection of $\varepsilon_{t+2}$ with the information set at time $t$. Thus the expectation is zero. With the expection of $\varepsilon_{t+1}$ conditional on the information set at time $t$, we also do not observe this, and  the corresponding expectation will be 0. Thus, we have:
+$$
+y_{t+2}^f = E(\varepsilon_{t+2}|I_t) - 1.2E(\varepsilon_{t+1}|I_t)
+$$
+$$
+y_{t+2}^f = 0 - 1.2E(\varepsilon_{t+1}|I_t)
+$$
+$$
+y_{t+2}^f = -1.2E(\varepsilon_{t+1}|I_t)
+$$
+$$
+y_{t+2}^f = 0
+$$
+Thus, the two-step ahead forecast of $y_t$, $y_{t+2 | t}^f$ is 0.
+
+Now, we must compute the variance of this two-step ahead forecast error. We must first calculate the corresponding forecast error, as the difference between the process at time $t+2$ and the forecast. Thus, for the two-step ahead forecast error, we have:
+$$
+e(y_{t+2}) = y_{t+2} - y_{t+2 | t}^f
+$$
+Substituting in for $y_{t+2}$ and $y_{t+2 | t}^f$, we have:
+$$
+e(y_{t+2}) = y_{t+2} - y_{t+2 | t}^f
+$$
+$$
+e(y_{t+2}) = (\varepsilon_{t+2} - 1.2\varepsilon_{t+1}) - y_{t+1 | t}^f
+$$
+$$
+e(y_{t+2}) = (\varepsilon_{t+2} - 1.2\varepsilon_{t+1}) - 0
+$$
+$$
+e(y_{t+2}) = \varepsilon_{t+2} - 1.2\varepsilon_{t+1}
+$$
+Thus our two-step ahead forecasting error is: $\varepsilon_{t+2} - 1.2\varepsilon_{t+1}$. Now, by taking the variance of the two-step ahead forecasting error, we have:
+$$
+var(y_{t+2}) = var(\varepsilon_{t+2} - 1.2\varepsilon_{t+1})
+$$
+By expanding on the variance on the right-side we have:
+$$
+var(y_{t+2}) = var(\varepsilon_{t+2} - 1.2\varepsilon_{t+1})
+$$
+$$
+var(y_{t+2}) = var(\varepsilon_{t+2}) + 1.2^2var(\varepsilon_{t+1}))
+$$
+Note, that since $\varepsilon_t$ ~ iid(0,1), the variance of $\varepsilon_t$ will be 1. Thus, we have the following:
+$$
+var(y_{t+2}) = \sigma_{\varepsilon}^2 + 1.2^2\sigma_{\varepsilon}^2
+$$
+$$
+var(y_{t+2}) = 1 + 1.44\times1
+$$
+$$
+var(y_{t+2}) = 2.44
+$$
+
+Therefore, we can say that the variance of the one-step ahead forecast for this MA(1) process defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is 2.44.
+
+## 1f) Find the $\tau$-step ahead forecast of $y_t$, $y_{t+\tau | t}^f$ and the variance of the corresponding forecast error, $var(e_{t+\tau})$ where $e_{t+2} = y_{t+\tau} - y_{t+\tau|t}^f$.
+
+### Solution:
+To calculate the $\tau$-step ahead forecast, we will consider the expectation of the process at time $t+\tau$, given our information set.
+
+First, let's calculate the process at time $t+\tau$:
+$$
+y_{t+\tau} = \varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}
+$$
+Now, we can calculate the $\tau$-step forecase of the process, using the following formula:
+$$
+y_{t+\tau}^f = E(y_{t+\tau}|I_t)
+$$
+By substituting the process at time $t+\tau$, we have:
+$$
+y_{t+tau}^f = E(y_{t+\tau}|I_t)
+$$
+
+$$
+y_{t+\tau}^f = E(\varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}|I_t)
+$$
+Expanding out our expectation, we have:
+$$
+y_{t+\tau}^f = E(\varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}|I_t)
+$$
+$$
+y_{t+\tau}^f = E(\varepsilon_{t+\tau}|I_t) - 1.2E(\varepsilon_{t+\tau}|I_t)
+$$
+Now, using our information set at time $t$, we don't observe anything at any future time. Therefore, we don't observe the expection of $\varepsilon_{t+\tau}$ with the information set at time $t$. Thus the expectation is zero. With the expection of $\varepsilon_{t+\tau-1}$ conditional on the information set at time $t$, we also do not observe this, and the corresponding expectation will be 0. Thus, we have:
+$$
+y_{t+\tau}^f = E(\varepsilon_{t+\tau}|I_t) - 1.2E(\varepsilon_{t+\tau-1}|I_t)
+$$
+$$
+y_{t+\tau}^f = 0 - 1.2E(\varepsilon_{t+\tau-1}|I_t)
+$$
+$$
+y_{t+\tau}^f = -1.2E(\varepsilon_{t+\tau-1}|I_t)
+$$
+$$
+y_{t+\tau}^f = 0
+$$
+Thus, the $\tau$-step ahead forecast of $y_t$, $y_{t+\tau | t}^f$ is 0.
+
+Now, we must compute the variance of this $\tau$-step ahead forecast error. We must first calculate the corresponding forecast error, as the difference between the process at time $t+\tau$ and the forecast. Thus, for the $\tau$-step ahead forecast error, we have:
+$$
+e(y_{t+\tau}) = y_{t+\tau} - y_{t+\tau | t}^f
+$$
+Substituting in for $y_{t+\tau}$ and $y_{t+\tau| t}^f$, we have:
+$$
+e(y_{t+\tau}) = y_{t+\tau} - y_{t+\tau | t}^f
+$$
+$$
+e(y_{t+\tau}) = (\varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}) - y_{t+\tau | t}^f
+$$
+$$
+e(y_{t+\tau}) = (\varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}) - 0
+$$
+$$
+e(y_{t+\tau}) = \varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}
+$$
+Thus our $\tau$-step ahead forecasting error is: $\varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1}$. Now, by taking the variance of the $\tau$-step ahead forecasting error, we have:
+$$
+var(y_{t+\tau}) = var(\varepsilon_{t+\tau} - 1.2\varepsilon_{t+\tau-1})
+$$
+By expanding on the variance on the right-side we have:
+$$
+var(y_{t+\tau}) = var(\varepsilon_{t+tau} - 1.2\varepsilon_{t+\tau-1})
+$$
+$$
+var(y_{t+\tau}) = var(\varepsilon_{t+\tau}) + 1.2^2var(\varepsilon_{t+\tau-1})
+$$
+Note, that since $\varepsilon_t$ ~ iid(0,1), the variance of $\varepsilon_t$ will be 1. Thus, we have the following:
+$$
+var(y_{t+1}) = \sigma_{\varepsilon}^2 + 1.2^2\sigma_{\varepsilon}^2
+$$
+$$
+var(y_{t+\tau}) = 1 + 1.44\times1
+$$
+$$
+var(y_{t+\tau}) = 2.44
+$$
+Therefore, we can say that the variance of the $\tau$-step ahead forecast for this MA(1) process defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is 2.44.
+
+Conclusively, we have the the $\tau$-steap ahead forecast for the MA(1) process defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$, where $\tau \geq 2$ is 0, which is the mean/expected value of this MA(1) process. Additionally, we have just found that the variance of the $\tau$-step ahead forecast for this MA(1) process defined by $y_t = \varepsilon_t - 1.2\varepsilon_{t-1}$ is 2.44, which is also the variance of this MA(1) process.
+
+## 1g) Is the MA(1) process invertible?
+
+### Solution:
+For the MA(1) process to be invertible, we need the roots of $1-1.2L = 0$ to be outside the unit circle. In other words, we require $|L| > 1$.
+
+Given,
+$$
+y_t = \varepsilon_t - 1.2\varepsilon_{t-1}
+$$
+We want:
+$$
+1-1.2L = 0
+$$
+Solving for L yields:
+$$
+L = 1/1.2 = 5/6
+$$
+Since $|L| < 1$, the roots of the MA(1) process lie inside the unit circle, and must therefore be not invertible.
+
+## 1h) Find an alternative MA(1) process which is invertible and has the same mean, variance, and auto-covariance function as the MA(1) process given here.
+
+### Solution:
+We want to provide an MA(1) process with the same covariance, mean and variance. With the MA(1) process provided in this problem, it operates under the assumption that $\varepsilon_t$ is a white noise process that is ~ iid(0,1). However, this is Gaussian white noise process, and not all white noise processes will have the same variance. Therefore, we want to find values of $b$ and $\sigma_{\varepsilon}^2$ such that the following equations are satisfied:
+
+If we have a different MA(1) process $x_t = u_t + bu_{t-1}$, where $u_t$ ~ iid($0,\sigma^2$), we want the mean to be the same as the MA(1) process given in the problem. In other words, we want:
+$$
+E(x_t) = 0
+$$
+Substituting in $x_t$ yields:
+$$
+E(u_t+bu_{t-1}) = 0
+$$
+Expanding the expectation yields:
+$$
+E(u_t) + bE(u_{t-1}) = 0 
+$$
+Note, that since $u_t$ ~ iid($0,\sigma^2$), the expected value of $u_t$ will be zero. Thus, we have the following:
+$$
+E(u_t) + bE(u_{t-1}) = 0 
+$$
+$$
+0 + bE(u_{t-1}) = 0
+$$
+$$
+0 + 0 = 0
+$$
+Thus, the expected value is zero for the MA(1) process we are interested in providing.
+
+We also want the variance to be the same as the MA(1) process given in the problem. In other words, we want:
+$$
+var(x_t) = 2.44 
+$$
+Substituting in $x_t$ yields:
+$$
+var(x_t) = 2.44 
+$$
+$$
+var(u_t+bu_{t-1}) = 2.44 
+$$
+Expanding the variance yields:
+$$
+var(u_t) + b^2var(u_{t-1}) = 2.44 
+$$
+Note, that since $u_t$ ~ iid($0,\sigma^2$), the variance of $u_t$ will be $\sigma^2$. Thus, we have the following:
+$$
+var(u_t) + b^2var(u_{t-1}) = 2.44 
+$$
+$$
+\sigma_u^2 + b^2\sigma_u^2 = 2.44 
+$$
+We also want the auto-covariance function to be the same as the MA(1) process given in the problem. In other words, we want:
+$$
+\gamma(1) = cov(x_t, x_{t-1}) = -1.2
+$$
+Substituting in $x_t$ yields:
+$$
+\gamma(1) = cov(x_t, x_{t-1}) = -1.2
+$$
+$$
+cov(u_t + bu_{t-1},x_{t-1}) = -1.2
+$$
+Expanding on the covariance, we have:
+$$
+\gamma(1) = cov(u_{t}, x_{t-1}) + bcov(u_{t-1}, x_{t-1}) = -1.2
+$$
+Since the term, $u_{t}$ does not depend on the time $t-1$, the covariance of $u_{t}$ with $x_{t-1}$ will be zero. Additionally, since the term $u_{t-1}$ does depend on the time $t-1$, the covariance of $u_{t-1}$ with $x_{t-1}$ will be $cov(u_{t-1}, u_{t-1})$. Thus, we have:
+
+$$
+\gamma(1) = cov(u_{t}, x_{t-1}) + bcov(u_{t-1}, x_{t-1}) = -1.2
+$$
+
+$$
+\gamma(1) = 0 + bcov(u_{t-1}, x_{t-1}) = -1.2
+$$
+
+$$
+\gamma(1) = bcov(u_{t-1}, x_{t-1}) = -1.2
+$$
+
+$$
+\gamma(1) = bcov(u_{t-1}, u_{t-1}) = -1.2
+$$
+Note that the covariance of a random variable with itself is just the variance, thus we are left with:
+$$
+\gamma(1) = bcov(u_{t-1}, u_{t-1}) = -1.2
+$$
+
+$$
+\gamma(1) = bvar(u_{t-1}) = -1.2
+$$
+Since $u_t$ ~ iid($0,\sigma^2$), we have:
+$$
+\gamma(1) = bvar(u_{t-1}) = -1.2
+$$
+$$
+\gamma(1) = b\sigma_u^2 = -1.2
+$$
+We now have a system of equations, in which we need to solve for two variables, $b$ and $\sigma_u^2$ to solve to satisfy the same properties as the MA(1) process given in the problem. In other words, we have the following:
+$$
+\begin{array}{lcl} \sigma_u^2 + b^2\sigma_u^2 & = & 2.44 \\  b\sigma_u^2 & = & -1.2 \end{array}
+$$
+
+We can solve the second equation for $\sigma_u^2$:
+$$
+b\sigma_u^2 = -1.2
+$$
+
+$$
+\sigma_u^2 = \frac{-1.2}{b}
+$$
+Now, we can substitute $\sigma_u^2$ into the first equation:
+$$
+\sigma_u^2 + b^2\sigma_u^2 = 2.44 
+$$
+
+$$
+\frac{-1.2}{b} + b^2(\frac{-1.2}{b}) = 2.44 
+$$
+$$
+-1.2/b + -1.2b = 2.44 
+$$
+Multiplying both sides by $b$, assuming $b \neq 0$, yields:
+$$
+-1.2/b + -1.2b = 2.44 
+$$
+$$
+-1.2 -1.2b^2 = 2.44b 
+$$
+$$
+1.2b^2 + 2.44b + 1.2 = 0
+$$
+Using the quadratic formula, we have the following roots:
+$$
+b = \frac{-2.44 \pm \sqrt{2.44^2-4(1.2)(1.2)}}{2(1.2)}
+$$
+Thus, we have $b = -\frac{5}{6}, -\frac{6}{5}$.
+
+Substituting $b = -\frac{5}{6}, -\frac{6}{5}$, we get $\sigma_u^2 = 1.44$ and $\sigma_u^2 = 1$, respectively. 
+Therefore, we have the following possibilities for $b$ and $\sigma_u^2$: $b = -\frac{5}{6}, \sigma_u^2 = 1.44$, or $b = -\frac{6}{5}, \sigma_u^2 = 1$.
+
+Let's choose  $b = -\frac{5}{6}, \sigma_u^2 = 1.44$ for the MA(1) process we wish to provide that will be invertible. We are proposing that:
+$$
+x_t = u_t - \frac{5}{6}u_{t-1}
+$$
+where $u_t$ ~ iid(0, 1.44) will have the same mean, variance, covariance as the MA(1) process in the problem, and also be invertible.
+
+I will now show that this MA(1) process has the same mean as the MA(1) process presented in this problem.
+
+Given,
+$$
+x_t = u_t - \frac{5}{6}u_{t-1}
+$$
+$$
+E(x_t) = E(u_t - \frac{5}{6}u_{t-1})
+$$
+Expanding out the expectation on the right side, we get:
+$$
+E(x_t) = E(u_t) - \frac{5}{6}E(u_{t-1})
+$$
+Since $u_t$ ~ iid(0,1.44), the expectation of $x_t$ is 0 across time. Thus, we have the following:
+$$
+E(x_t) = E(u_t) - \frac{5}{6}E(u_{t-1})
+$$
+$$
+E(x_t) = 0 - \frac{5}{6} \times 0
+$$
+$$
+E(x_t) = 0
+$$
+Thus, we can say that the mean of this MA(1) process, defined by $x_t = u_t - \frac{5}{6}u_{t-1}$ is zero, which is the same as the mean of the MA(1) process in the problem.
+
+Now, I will now show that this MA(1) process has the same variance as the MA(1) process presented in this problem.
+
+Given,
+$$
+x_t = u_t - \frac{5}{6}u_{t-1}
+$$
+$$
+var(x_t) = var(u_t - \frac{5}{6}u_{t-1})
+$$
+Expanding out the variance on the right side, we get:
+$$
+var(x_t) = var(u_t) + (\frac{5}{6})^2var(\varepsilon_{t-1})
+$$
+Since $u_t$ ~ iid(0,1.44), the variance of $x_t$ is $1.44$ across time. Thus, we have the following:
+$$
+var(x_t) = var(u_t) + (\frac{5}{6})^2var(\varepsilon_{t-1})
+$$
+
+$$
+var(x_t) = 1.44 + \frac{5}{6})^2 \times 1.44
+$$
+
+$$
+var(x_t) = 1.44 + 1 = 2.44
+$$
+Thus, we can say that the variance of this MA(1) process, defined by $x_t = u_t - \frac{5}{6}u_{t-1}$ is 2.44, which is the same as the variance of the MA(1) process in the problem.
+
+Now, I will now show that this MA(1) process has the same covariance function as the MA(1) process presented in this problem.
+
+Given,
+$$
+x_t = u_t - \frac{5}{6}u_{t-1}
+$$
+Let's denote the auto covariance function by $\gamma(1)$.
+$$
+\gamma(1) = cov(x_t, x_{t-1})
+$$
+$$
+\gamma(1) = cov(u_t - \frac{5}{6}u_{t-1}, x_{t-1})
+$$
+Expanding on the covariance, we have:
+$$
+\gamma(1) = cov(u_t, x_{t-1}) - \frac{5}{6}cov(u_{t-1}, x_{t-1})
+$$
+Since the term, $u_{t}$ does not depend on the time $t-1$, the covariance of $u_{t}$ with $x_{t-1}$ will be zero. Additionally, since the term $u_{t-1}$ does depend on the time $t-1$, the covariance of $u_{t-1}$ with $x_{t-1}$ will be $cov(u_{t-1}, u_{t-1})$. Thus, we have:
+
+$$
+\gamma(1) = cov(u_{t}, x_{t-1}) - \frac{5}{6}cov(u_{t-1}, x_{t-1})
+$$
+
+$$
+\gamma(1) = 0 - \frac{5}{6}cov(u_{t-1}, x_{t-1})
+$$
+
+$$
+\gamma(1) = -\frac{5}{6}cov(u_{t-1}, x_{t-1})
+$$
+
+$$
+\gamma(1) = -\frac{5}{6}cov(u_{t-1}, u_{t-1})
+$$
+Note that the covariance of a random variable with itself is just the variance, thus we are left with:
+$$
+\gamma(1) = -\frac{5}{6}cov(u_{t-1}, u_{t-1})
+$$
+
+$$
+\gamma(1) = -\frac{5}{6}var(u_{t-1})
+$$
+
+$$
+\gamma(1) = -\frac{5}{6}\sigma_{u}^2
+$$
+Since $u_t$ ~ iid(0,1.44), we have:
+$$
+\gamma(1) = -\frac{5}{6}(1.44)
+$$
+$$
+\gamma(1) = -\frac{5}{6} \times 1.44 = -1.2
+$$
+Thus, we can say that the auto covariance function of this MA(1) process, defined by $x_t = u_t - \frac{5}{6}u_{t-1}$ is -1.2, which is the same as the auto covariance of the MA(1) process in the problem.
+
+Now, I will verify that this MA(1) process is invertible.
+
+For the MA(1) process to be invertible, we need the roots of $1-\frac{5}{6}L = 0$ to be outside the unit circle. In other words, we require $|L| > 1$.
+
+Given,
+$$
+x_t = u_t - \frac{5}{6}u_{t-1}
+$$
+We want:
+$$
+1-\frac{5}{6}L = 0
+$$
+Solving for L yields:
+$$
+L = \frac{1}{\frac{5}{6}} = \frac{6}{5}
+$$
+Since $|L| > 1$, the roots of the MA(1) process lie outside the unit circle, and must therefore be invertible.
+
+Thus, I have shown that the MA(1) process defined by $x_t = u_t - \frac{5}{6}u_{t-1}$ has the same mean, variance, auto covariance function as the MA(1) process in the problem, and is invertible.
+
+
+# Problem 2:
+
+Consider the following ARMA(1,1) process, $y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1}$, where $\varepsilon_t$ ~ iid(0,1).
+
+## 2a) Provide the conditions under which the process is weakly stationary.
+
+### Solution:
+The ARMA(1,1) process is weakly stationary if the AR part is weakly stationary. In particular, we require that the roots of:
+$$
+1-\rho L= 0
+$$
+all lie outside of the unit circle, or $|L| > 1$.
+
+## 2b) From now on, suppose that the process is weakly stationary. Find the coefficients ${\alpha_j}$ in the representation $y_t = \sum_{j=0}^\infty\alpha_j \varepsilon_{t-j}$
+
+### Solution:
+First, note that $(1-\rho L) y_t = (1-\theta L)\varepsilon_t$, and:
+$$
+y_t = (1-\rho L)^{-1}(1-\theta L)\varepsilon_t
+$$
+where:
+$$
+(1-\rho L)^{-1} = (1+\rho L +\rho L^2 + ...)
+$$
+Therefore,
+$$
+y_t = \varepsilon_t + (\rho - \theta)\sum_{j=0}^\infty \rho^j
+$$
+So, we have the coefficients: $\alpha_0 = 1$ and $\alpha_j = (\rho-\theta)\rho^{j-1}$ for $j \geq 1$.
+
+## 2c) Find the mean of $y_t$.
+
+### Solution:
+Our approach here, will rely on taking the expectation of $y_t$.
+Given,
+$$
+y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1}
+$$
+$$
+E(y_t) = E(\rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1})
+$$
+Expanding out the expectation on the right side, we get:
+$$
+E(y_t) = E(\rho y_{t-1}) + E(\varepsilon_t) - E(\theta \varepsilon_{t-1})
+$$
+Since $\varepsilon_t$ ~ iid(0,1), the expectation of $y_t$ is 0 across time. Thus, we have the following:
+$$
+E(y_t) = E(\rho y_{t-1}) + E(\varepsilon_t) - E(\theta \varepsilon_{t-1})
+$$
+$$
+E(y_t) = \rho E(y_{t-1}) + 0 - 0
+$$
+$$
+E(y_t) - \rho E(y_{t-1}) = 0
+$$
+$$
+E(y_t)[1-\rho] = 0
+$$
+$$
+E(y_t) = 0
+$$
+Thus, we can say that the mean of this ARMA(1,1) process, defined by $y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1}$ is zero.
+
+## 2d) Find the variance of $y_t$.
+
+### Solution:
+Our approach here, will rely on taking note of how $\varepsilon$ ~ iid(0,1).
+Given,
+$$
+y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1}
+$$
+$$
+var(y_t) = var(y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1})
+$$
+Expanding out the variance on the right side, we get:
+$$
+var(y_t) = var(y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1})
+$$
+$$
+var(y_t) = \rho^2var(y_{t-1}) + var(\varepsilon_{t}) + \theta^2var(\varepsilon_{t-1})
+$$
+However, we cannot guarantee that $y_{t-1}$ and $\varepsilon_{t-1}$ are independent, in fact they are correlated, thus we need to include an additional term:
+$$
+var(y_t) = \rho^2var(y_{t-1}) + var(\varepsilon_{t}) + \theta^2var(\varepsilon_{t-1}) - 2\rho\theta cov(y_{t-1}, \varepsilon_{t-1})
+$$
+Since the term $\varepsilon_{t-1}$ does depend on the time $t-1$, the covariance of $\varepsilon_{t-1}$ with $y_{t-1}$ will be $cov(\varepsilon_{t-1}, \varepsilon_{t-1})$. Thus, we have:
+$$
+var(y_t) = \rho^2var(y_{t-1}) + var(\varepsilon_{t}) + \theta^2var(\varepsilon_{t-1}) - 2\rho\theta var(\varepsilon_{t-1}, \varepsilon_{t-1})
+$$
+Let's denote the variance of $y_t$ by $\gamma(0)$, then we have:
+$$
+var(y_t) = \rho^2var(y_{t-1}) + var(\varepsilon_{t}) + \theta^2var(\varepsilon_{t-1}) - 2\rho\theta var(\varepsilon_{t-1}, \varepsilon_{t-1})
+$$
+$$
+\gamma(0) = \rho^2\gamma(0) + var(\varepsilon_{t}) + \theta^2var(\varepsilon_{t-1}) - 2\rho\theta var(\varepsilon_{t-1}, \varepsilon_{t-1})
+$$
+$$
+\gamma(0) = \rho^2\gamma(0) + \sigma_{\varepsilon}^2 + \theta^2\sigma_{\varepsilon}^2 - 2\rho\theta \sigma_{\varepsilon}^2
+$$
+$$
+\gamma(0) - \rho^2\gamma(0) = \sigma_{\varepsilon}^2 + \theta^2\sigma_{\varepsilon}^2 - 2\rho\theta \sigma_{\varepsilon}^2
+$$
+$$
+\gamma(0)[1 - \rho^2] = \sigma_{\varepsilon}^2[1+\theta^2- 2\rho\theta]
+$$
+$$
+\gamma(0) = \frac{\sigma_{\varepsilon}^2[1+\theta^2- 2\rho\theta]}{1-\rho^2}
+$$
+$$
+\gamma(0) = \frac{[(1-\rho^2-\rho^2)+\theta^2- 2\rho\theta]}{1-\rho^2}\sigma_{\varepsilon}^2
+$$
+$$
+\gamma(0) = 1 + \frac{[\rho^2-+\theta^2- 2\rho\theta]}{1-\rho^2}\sigma_{\varepsilon}^2
+$$
+$$
+\gamma(0) = 1 + \frac{(\rho-\theta)^2}{1-\rho^2}\sigma_{\varepsilon}^2
+$$
+Since $\varepsilon_t$ ~ iid(0,1), the variance of $y_t$ is $1$ across time. Thus, we have the following:
+$$
+\gamma(0) = 1 + \frac{(\rho-\theta)^2}{1-\rho^2}\sigma_{\varepsilon}^2
+$$
+$$
+\gamma(0) = 1 + \frac{(\rho-\theta)^2}{1-\rho^2}
+$$
+
+## 2e) Find the auto-covariance of of $y_t$.
+
+### Solution:
+Our approach here, will rely on taking note of certain properties of covariance.
+Given,
+$$
+y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1}
+$$
+Let's denote the auto covariance function by $\gamma(1)$.
+$$
+\gamma(1) = cov(y_t, y_{t-1})
+$$
+$$
+\gamma(1) = cov(\rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1})
+$$
+Expanding on the covariance, we have:
+$$
+\gamma(1) = \rho cov(y_{t-1}, y_{t-1}) + cov(\varepsilon_t,y_{t-1}) - \theta cov(\varepsilon_{t-1}, y_{t-1}) 
+$$
+Since the term, $\varepsilon_{t}$ does not depend on the time $t-1$, the covariance of $\varepsilon_{t}$ with $y_{t-1}$ will be zero. Additionally, since the term $\varepsilon_{t-1}$ does depend on the time $t-1$, the covariance of $\varepsilon_{t-1}$ with $y_{t-1}$ will be $cov(\varepsilon_{t-1}, \varepsilon_{t-1})$, additionally note that the term $y_{t-1}$ does depend on the time $t-1$, so the covariance will not be zero. Thus, we have:
+
+$$
+\gamma(1) = \rho cov(y_{t-1}, y_{t-1}) + cov(\varepsilon_t,y_{t-1}) - \theta cov(\varepsilon_{t-1}, y_{t-1}) 
+$$
+$$
+\gamma(1) = \rho cov(y_{t-1}, y_{t-1}) + 0 - \theta cov(\varepsilon_{t-1}, y_{t-1}) 
+$$
+Note that the covariance of a random variable with itself is just the variance. If we denote the variance by $\gamma(0)$, we have:
+$$
+\gamma(1) = \rho \gamma(0) - \theta cov(\varepsilon_{t-1}, y_{t-1}) 
+$$
+$$
+\gamma(1) = \rho \gamma(0) - \theta cov(\varepsilon_{t-1}, \varepsilon_{t-1}) 
+$$
+Note that the covariance of a random variable with itself is just the variance, so we have:
+$$
+\gamma(1) = \rho \gamma(0) - \theta var(\varepsilon_{t-1}) 
+$$
+Since $\varepsilon_t$ ~ iid(0,1), we have:
+$$
+\gamma(1) = \rho \gamma(0) - \theta \sigma_{\varepsilon}^2
+$$
+$$
+\gamma(1) = \rho \gamma(0) - \theta
+$$
+Therefore, we can say that the auto-covariance function for the ARMA(1,1) process defined by $y_t = \rho y_{t-1} + \varepsilon_t - \theta \varepsilon_{t-1}$ is $\rho \gamma(0) - \theta$.
+
+## 2f) Find the one-step ahead forecast of $y_t$, $y_{t+1 | t}^f$ and the variance of the corresponding forecast error, $var(e_{t+1})$ where $e_{t+1} = y_{t+1} - y_{t+1|t}^f$.
+
+### Solution:
+To calculate the one-step ahead forecast, we will consider the expectation of the process at time $t+1$, given our information set.
+
+First, let's calculate the process at time $t+1$:
+$$
+y_{t+1} = \rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}
+$$
+Now, we can calculate the one-step forecast of the process, using the following formula:
+$$
+y_{t+1}^f = E(y_{t+1}|I_t)
+$$
+By substituting the process at time $t+1$, we have:
+$$
+y_{t+1}^f = E(y_{t+1}|I_t)
+$$
+
+$$
+y_{t+1}^f = E(\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}|I_t)
+$$
+Expanding out our expectation, we have:
+$$
+y_{t+1}^f = \rho E(y_{t}|I_t) + E(\varepsilon_{t+1}|I_t) - \theta E(\varepsilon_t|I_t)
+$$
+$$
+y_{t+1}^f = E(\varepsilon_{t+1}|I_t) - 1.2E(\varepsilon_{t}|I_t)
+$$
+Now, using our information set at time $t$, we don't observe anything at any future time. Therefore, we don't observe the expection of $\varepsilon_{t+1}$ with the information set at time $t$. Thus the expectation is zero. With the expection of $\varepsilon_t$ conditional on the information set at time $t$, we do observe this, and will the corresponding expectation will be $\varepsilon_t$. Additionally, with the expection of $y_t$ conditional on the information set at time $t$, we do observe this, and will the corresponding expectation will be $y_t$ Thus, we have:
+$$
+y_{t+1}^f = \rho E(y_{t}|I_t) + E(\varepsilon_{t+1}|I_t) - \theta E(\varepsilon_t|I_t)
+$$
+$$
+y_{t+1}^f = \rho y_t + 0 - \theta \varepsilon_t
+$$
+$$
+y_{t+1}^f = \rho y_t - \theta \varepsilon_t
+$$
+
+Thus, the one-step ahead forecast of $y_t$, $y_{t+1 | t}^f$ is $\rho y_t - \theta \varepsilon_t$.
+
+Now, we must compute the variance of this one-step ahead forecast error. We must first calculate the corresponding forecast error, as the difference between the process at time $t+1$ and the forecast. Thus, for the one-step ahead forecast error, we have:
+$$
+e(y_{t+1}) = y_{t+1} - y_{t+1 | t}^f
+$$
+Substituting in for $y_{t+1}$ and $y_{t+1 | t}^f$, we have:
+$$
+e(y_{t+1}) = y_{t+1} - y_{t+1 | t}^f
+$$
+$$
+e(y_{t+1}) = (\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}) - y_{t+1 | t}^f
+$$
+$$
+e(y_{t+1}) = (\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}) - (\rho y_t - \theta \varepsilon_t)
+$$
+
+$$
+e(y_{t+1}) = \varepsilon_{t+1}
+$$
+
+Thus our one-step ahead forecasting error is: $\varepsilon_{t+1}$. Now, by taking the variance of the one-step ahead forecasting error, we have:
+$$
+var(e_{t+1}) = var(\varepsilon_{t+1})
+$$
+$$
+var(e_{t+1}) = \sigma_{\varepsilon}^2
+$$
+Note, that since $\varepsilon_t$ ~ iid(0,1), the variance of $\varepsilon_t$ will be 1. Thus, we have the following:
+$$
+var(e_{t+1}) = \sigma_{\varepsilon}^2
+$$
+$$
+var(e_{t+1}) = 1
+$$
+Therefore, we can say that the variance of the one-step ahead forecast for this ARMA(1,1) process defined by $\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}$ is 1.
+
+## 2g) Find the two-step ahead forecast of $y_t$, $y_{t+2 | t}^f$ and the variance of the corresponding forecast error, $var(e_{t+2})$ where $e_{t+2} = y_{t+2} - y_{t+2|t}^f$.
+
+### Solution:
+To calculate the two-step ahead forecast, we will consider the expectation of the process at time $t+2$, given our information set.
+
+First, let's calculate the process at time $t+2$:
+$$
+y_{t+2} = \rho y_{t+1} + \varepsilon_{t+2} - \theta \varepsilon_{t+1}
+$$
+Now, we can calculate the two-step forecast of the process, using the following formula:
+$$
+y_{t+2}^f = E(y_{t+2}|I_t)
+$$
+By substituting the process at time $t+2$, we have:
+$$
+y_{t+2}^f = E(y_{t+2}|I_t)
+$$
+
+$$
+y_{t+2}^f = E(\rho y_{t+1} + \varepsilon_{t+2} - \theta \varepsilon_{t+1}|I_t)
+$$
+Expanding out our expectation, we have:
+$$
+y_{t+2}^f = \rho E(y_{t+1}|I_t) + E(\varepsilon_{t+2}|I_t) - \theta E(\varepsilon_{t+1}|I_t)
+$$
+Now, using our information set at time $t$, we don't observe anything at any future time. Therefore, we don't observe the expection of $\varepsilon_{t+2}$ with the information set at time $t$. Thus the expectation is zero. With the expection of $\varepsilon_{t+1}$ conditional on the information set at time $t$, we also do not observe this, and the corresponding expectation will be zero. Additionally, with the expection of $y_{t+1}$ conditional on the information set at time $t$, we do observe this, and this was calculated in part (f), so we can plug it in. Thus, we have:
+$$
+y_{t+2}^f = \rho E(y_{t+1}|I_t) + E(\varepsilon_{t+2}|I_t) - \theta E(\varepsilon_{t+1}|I_t)
+$$
+$$
+y_{t+2}^f = \rho(\rho y_t - \theta \varepsilon_t) + 0 - 0
+$$
+$$
+y_{t+2}^f = \rho^2 y_t - \rho\theta \varepsilon_t
+$$
+
+Thus, the two-step ahead forecast of $y_t$, $y_{t+2 | t}^f$ is $\rho^2 y_t - \rho\theta \varepsilon_t$.
+
+Now, we must compute the variance of this two-step ahead forecast error. We must first calculate the corresponding forecast error, as the difference between the process at time $t+2$ and the forecast. Thus, for the two-step ahead forecast error, we have:
+$$
+e(y_{t+2}) = y_{t+2} - y_{t+2 | t}^f
+$$
+Substituting in for $y_{t+2}$ and $y_{t+2 | t}^f$, we have:
+$$
+e(y_{t+2}) = y_{t+2} - y_{t+2 | t}^f
+$$
+$$
+e(y_{t+2}) = (\rho y_{t+1} + \varepsilon_{t+2} - \theta \varepsilon_{t+1}) - y_{t+2 | t}^f
+$$
+$$
+e(y_{t+2}) = (\rho y_{t+1} + \varepsilon_{t+2} - \theta \varepsilon_{t+1}) - (\rho^2 y_t - \rho\theta \varepsilon_t)
+$$
+Substituting for $y_{t+1}$ we get:
+$$
+e(y_{t+2}) = (\rho (\rho y_t - \theta \varepsilon_t) + \varepsilon_{t+2} - \theta \varepsilon_{t+1}) - (\rho^2 y_t - \rho\theta \varepsilon_t)
+$$
+$$
+e(y_{t+2}) = ((\rho^2y_t - \rho\theta \varepsilon_t) + \varepsilon_{t+2} - \theta \varepsilon_{t+1}) - (\rho^2 y_t - \rho\theta \varepsilon_t)
+$$
+$$
+e(y_{t+2}) = \varepsilon_{t+2} + \rho \varepsilon_{t+1}
+$$
+
+Thus our two-step ahead forecasting error is: $\varepsilon_{t+2} + \rho \varepsilon_{t+1}$. Now, by taking the variance of the two-step ahead forecasting error, we have:
+$$
+var(e_{t+2}) = var( \varepsilon_{t+2} + \rho \varepsilon_{t+1})
+$$
+$$
+var(e_{t+2}) = \sigma_{\varepsilon}^2 + \rho^2\sigma_{\varepsilon}^2
+$$
+$$
+var(e_{t+2}) = \sigma_{\varepsilon}^2[1+\rho^2]
+$$
+Note, that since $\varepsilon_t$ ~ iid(0,1), the variance of $\varepsilon_t$ will be 1. Thus, we have the following:
+$$
+var(e_{t+2}) = \sigma_{\varepsilon}^2[1+\rho^2]
+$$
+$$
+var(e_{t+2}) = 1+\rho^2
+$$
+Therefore, we can say that the variance of the two-step ahead forecast error for this ARMA(1,1) process defined by $\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}$ is $1+\rho^2$.
+
+## 2h) Use the linear time-series representation of $y_t$ that you found in part b. Find the $\tau$-step ahead forecast of $y_t$, $y_{t+\tau}^f$ and the variance of the corresponding forecast error, $var(e_{t+\tau})$ where $e_{t+\tau}=y_{t+\tau}-y_{t+\tau}^f$
+
+### Solution:
+Given that,
+$$
+y_t = \varepsilon_t + (\rho - \theta)\sum_{j=0}^{\infty} \rho^j
+$$
+We have that:
+$$
+y_{t+\tau} = \sum_{j=0}^{\infty} \alpha_j \varepsilon_{t+\tau-j}
+$$
+Thus, we have:
+$$
+y_{t+\tau}^f = E(y_{t+\tau} | I_t)
+$$
+$$
+y_{t+\tau}^f = E(\sum_{j=0}^{\infty} \alpha_j \varepsilon_{t+\tau-j} | I_t)
+$$
+$$
+y_{t+\tau}^f = \sum_{j=\tau}^{\infty} \alpha_j \varepsilon_{t+\tau-j}
+$$
+Therefore, we can say that the $\tau$-step ahead forecast for this ARMA(1,1) process defined by $\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}$ is $\sum_{j=\tau}^\infty \alpha_j \varepsilon_{t+\tau-j}$.
+
+We also have that:
+$$
+e_{t+\tau} = y_{t+\tau} - y_{t+\tau}^f
+$$
+$$
+e_{t+\tau} = \sum_{j=0}^{\infty} \alpha_j \varepsilon_{t+\tau-j} - y_{t+\tau}^f
+$$
+$$
+e_{t+\tau} = \sum_{j=0}^{\infty} \alpha_j \varepsilon_{t+\tau-j} - \sum_{j=\tau}^\infty \alpha_j \varepsilon_{t+\tau-j}
+$$
+$$
+e_{t+\tau} = \sum_{j=0}^{\tau-1} \alpha_j \varepsilon_{t+\tau-j}
+$$
+So, we can find the variance of the $\tau$-step ahead forecast error as:
+$$
+var(e_{t+\tau}) = var(\sum_{j=0}^{\tau-1} \alpha_j \varepsilon_{t+\tau-j})
+$$
+$$
+var(e_{t+\tau}) = \sum_{j=0}^{\tau-1} \alpha_j^2
+$$
+Therefore, we can say that the variance of the $\tau$-step ahead forecast error for this ARMA(1,1) process defined by $\rho y_{t} + \varepsilon_{t+1} - \theta \varepsilon_{t}$ is $\sum_{j=0}^{\tau-1} \alpha_j^2$.
+
+## 2i) Show that $lim_{\tau \rightarrow \infty}y_{t+\tau}^f = E(y_t)$ and $lim_{\tau \rightarrow \infty}var(e_{t+\tau}) = var(y_t)$. How do you interpret these results?
+
+### Solution:
+Observe that as $j \rightarrow \infty$, $\alpha_j$ will begin to decay. Therefore, we can say:
+$$
+lim_{j \rightarrow \infty}\alpha_j=0
+$$
+and therefore conclude that:
+$$
+lim_{\tau \rightarrow \infty}y_{t+\tau}^f = 0 = E(y_t)
+$$
+Which is the same value of $E(y_t)$.
+
+Also, using part (h), we have:
+$$
+lim_{\tau \rightarrow \infty}var(e_{t+\tau}) = \sum_{j=0}^\infty\alpha_j^2
+$$
+$$
+lim_{\tau \rightarrow \infty}var(e_{t+\tau}) = var(y_t)
+$$
+From part (d), we have the variance of the ARMA(1,1) process is given by:
+$$
+lim_{\tau \rightarrow \infty}var(e_{t+\tau}) = 1 + \frac{(\rho-\theta)^2}{(1-\rho^2)}
+$$
+The results imply that if I want to predict further in the future, I will have more uncertainty. Additionally, it also implies that whatever I have now has nothing to do with a very far time in the future.
+
+# Problem 3:
+
+## Consider the monthly simple returns of CRSP Decile 1, 2, 5, 9 and 10 portfolios based on the market capitalization of NYSE/AMEX/NASDAQ. The data span is from January 1961 to September 2011.
+
+## 2a)  For the return series of Decile 2 and Decile 10, test the null hypothesis that the first 12 lags of autocorrelations are zero at the 5% level. Draw your conclusion
+
+### Solution:
+```{r, eval = TRUE}
+rm(list = ls()) # clear the data environment
+da <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 3/m-dec12910.txt", header = TRUE) #read in file
+
+d2 <- da$dec2
+d10 <- da$dec10
+Box.test(d2,lag=12,type='Ljung') #run Box-Ljung test on Decile 2
+Box.test(d10, lag=12, type='Ljung') #run Box-Ljung test on Decile 10
+```
+
+For Decile 2 treutns, we have Q(12) = 14.22, with p-value of 0.2869. For Decile 10 returns, we have Q(12) = 41.06, with p-value of ~ 0. Therefore, we reject the null hypothesis for Decile 10 returns, but we cannot reject the null hypothesis for Decile 2 returns.
+
+## 2b) Build an ARMA model for the return series of Decile 2. Perform model checking and write down the fitted model.
+
+### Solution:
+```{r, eval = TRUE}
+#First run a significance test on the true mean of the Deciles:
+t.test(d2) #Looks like the mean of the deciles do indeed differ from zero, which is good!
+```
+```{r, eval = TRUE, fig.align = 'center'}
+acf(d2) #Now display Lag-1 ACF
+```
+```{r, eval = TRUE}
+m1 <- arima(d2, order = c(1,0,1)) #Builder ARMA model for Decile 2
+m1
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+tsdiag(m1) #The plot looks reasonable
+```
+So, our ARMA(1,1) model looks like:
+$$
+x_t + 0.3261x_{t-1} = 0.0095 + a_t - 0.4505a_{t-1}
+$$
+## 2c)  Use the fitted ARMA model to produce 1 to 12-step ahead forecasts of the series and the associated standard errors of forecasts
+
+### Solution:
+```{r, eval = TRUE}
+p1 <- predict(m1, 12)
+p1 #Prediction shows clear pattern of mean reversion
+```
+
+## Consider the monthly yields of Moody’s Aaa & Baa seasoned bonds from January 1919 to November, 2011. The data are obtained from FRED of Federal Reserve Bank of St.Louis. Consider the log series of monthly Aaa bond yields. Build a time series model for the series, including model checking.
+
+### Solution:
+```{r, eval = TRUE, fig.align = 'center'}
+da <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 3/m-aaa-1911.txt", header = TRUE) #read in aaa
+da1 <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 3/m-baa-1911.txt", header = TRUE) #read in baa
+
+#Consider the log-series of monthly Aaa bond yields
+aaa <- log(da$yield)
+plot(aaa, type = 'l')
+```
+```{r, eval = TRUE, fig.align = 'center'}
+acf(aaa) #display ACF of log return series
+```
+```{r, eval = TRUE, fig.align = 'center'}
+acf(diff(aaa))
+```
+```{r, eval = TRUE, fig.align = 'center'}
+m1 <- ar(aaa) #check AR model
+m1$order
+```
+```{r, eval = TRUE, fig.align = 'center'}
+pacf(diff(aaa)) #now display
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+par(mfcol=c(2,1))
+acf(diff(aaa))
+pacf(diff(aaa))
+t.test(diff(aaa)) #true mean significantly not different from zero!
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+#Looks like AR model doesn't work well, what about a MA model?
+m1 <- arima(aaa, order = c(0,1,1))
+m1
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+#check plot:
+tsdiag(m1) 
+#Plot does not looks very good, let's try a different model.
+```
+```{r, eval = TRUE, fig.align = 'center'}
+m2=arima(aaa,order=c(2,1,0))
+m2
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+tsdiag(m2) #looks better
+```
+
+##  Consider the quarterly earnings per share of the Johnson & Johnson from the first quarter of 1992 to the second quarter of 2011. The data are in the file q-jnj-earns-9211.txtand are obtained from the First Call Historical Database of Thomson Reuters. Take log transformation of the data if necessary. Build a time series model for the data. Perform model checking to assess the adequacy of the fitted model. Write down themodel. Re-fit the model using data from 1992 to 2008. Perform 1-step to 10-step ahead forecasts of the quarterly earnings and obtain a forecast plot.
+
+### Solution:
+```{r, eval = TRUE, fig.align ='center'}
+da <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 3/q-jnj-earns-9211.txt", header = TRUE) #read in aaa
+
+jnj <- da$earns
+plot(jnj, type = 'l') #plot jnj
+min(jnj)
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+#display graphs
+acf(diff(jnj))
+acf(diff(diff(jnj), 4))
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+mm1 <- arima(jnj,order=c(0,1,1),seasonal=list(order=c(0,1,0),period=4)) #try model 
+mm1
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+#check graph
+tsdiag(mm1, gof = 12) #doesn't look good
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+m1=arima(jnj[1:68],order=c(0,1,1),seasonal=list(order=c(0,1,0),period=4)) #try another model
+m1
+```
+
+Looks model is: 
+$$
+y_t = \varepsilon_t + 0.5579\varepsilon_{t-1}
+$$
+
+Now, predict:
+```{r, eval =  TRUE, fig.align = 'center'}
+p1=predict(m1,10)
+jnj1=jnj[1:78]
+jnj2=c(jnj[1:68],p1$pred)
+jnj3=c(jnj[1:68],p1$pred+1.96*p1$se) 
+jnj4=c(jnj[1:68],p1$pred-1.96*p1$se)
+max(jnj3,jnj4)
+min(jnj3,jnj4)
+```
+Forecast plot looks like:
+```{r, eval = TRUE, fig.align = 'center'}
+par(mfcol=c(1,1))
+tdx=c(1:78)/4+1991
+plot(tdx,jnj1,xlab='year',ylab='ln-earns',type='l',ylim=c(0.08,.9))
+points(tdx,jnj2,cex=0.8)
+lines(tdx,jnj3,lty=2)
+lines(tdx,jnj4,lty=2)
+```
+
