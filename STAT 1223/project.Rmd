@@ -1,0 +1,72 @@
+---
+title: "STAT 1223 - Project"
+author: "Gordon Lu"
+date: "3/21/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(quantmod)
+library(forecast)
+library(tibble)
+
+```
+
+```{r}
+
+sp500 <- new.env()
+ticker_list <- c("AMZN", "AAPL", "MSFT", "GME")
+
+cols <- c()
+getSymbols("GME", env = sp500, src = "yahoo", from = as.Date("2020-01-01"), to = Sys.Date())
+
+df <- data.frame(sp500$GME)
+write.csv(df,"C:/Users/gordo/Desktop/STAT 1223/project_data.csv", row.names = FALSE)
+# for(i in 1:nrow(df)){
+#   
+#   new_col[i] = TRUE  
+# }
+  
+# df <- df %>%
+#   add_column(Buy_Sell = 
+#                if_else(.$GME.Open > mean(df[GME.Open]), TRUE, FALSE),
+#              .after="ID")
+# mean(df$GME.Open)
+model <- auto.arima(log(df$GME.Open))
+model
+fit <- arima(df$GME.Open, order = c(2,1,2))
+checkresiduals(fit)
+autoplot(forecast(fit))
+autoplot(fit)
+fit
+```
+```{r}
+# Try a 60/40 Train-Test Split
+train_size <- .60*nrow(df)
+test_size <- .40*nrow(df)
+df
+# Shuffle around train and test...
+train <- sample(1:nrow(df), train_size)
+trainX <- df[train, -1]
+trainY <- df[train, 1] 
+trainSet <- data.frame(trainY, trainX)
+testX <- df[-train, -1]
+testY <- df[-train, 1]
+testSet <- data.frame(testY, testX)
+
+trainSet
+```
+```{r}
+# Predict using an ARIMA model
+model <- auto.arima(log(df$GME.Open))
+model
+trainSet
+fit <- Arima(log(trainSet$trainY), order = c(1,1,4))
+checkresiduals(fit)
+autoplot(forecast(fit))
+autoplot(fit)
+res.test <- Arima(log(testSet$testY), model=fit)
+accuracy(res.test)
+```
+
