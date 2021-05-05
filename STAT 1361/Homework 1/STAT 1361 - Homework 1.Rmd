@@ -1,0 +1,287 @@
+---
+title: "STAT 1361 - Homework 1"
+author: "Gordon Lu"
+date: "2/4/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Exercise 1:
+
+### 1a) A flexible statistical learning method would perform better, since the sample size would be large enough to fit more parameters. Additionally, a small number of predictors would limit the variance of the model.
+
+### 1b) A flexible statistical learning method would perform worse, since the introduction of more parameters and a smaller sample size would increase the chance of overfitting. The model would try to fit to the small number of observations, and almost fit the data "too well".
+
+### 1c) A flexible statistical learning method would perform better, as with more degrees of freedom, we would obtain a better fit.
+
+### 1d) A flexible statistical learning method would perform worse, since the model would fit to the noice in the error terms, and variance would increase. Additionally, the chance of overfitting increases.
+
+## Exercise 2:
+
+### 2a)
+
+This is a `regression` problem, since the response is continuous. This problem concerns `inference`, we want to know which factors impact CEO salary, rather than how much does CEO salary increase/decrease.
+
+Here, `n` is the top 500 firms in the US. On the other hand, The parameters, `p` are number of employees, industry, and the CEO salary.
+
+### 2b) 
+
+Since the response is categorical, in particular, a binary response, this is a `classification` problem, we want to know whether launching a new product will be a success or a failure, rather than what factors influence whether a new product will be a success or failure. This problem is one concerning `prediction`.
+
+Here, `n` is the 20 similar products that were previously launched. The parameters, `p` are the price charged for the product, marketing budget, competition price, and the ten other variables.
+
+### 2c) 
+
+This is a `regression` problem, since the response is continuous. This problem concerns `prediction`, we want to know how USD/Euro exchange rate is related to weekly changes in the world stock markets, rather than knowing what factors influence the exchange rate.
+
+Here, `n` is the 52 weeks of data collected for all of 2012. The parameters, `p` are the % change in the USD/Euro, the % change in the US market, the % change in the British market, and the % change in the German market.
+
+## Exercise 5:
+
+An advantage of a very flexible model would be that they are highly data-driven. In the case of fitting a non-linear models, a flexible model will typically do a better job. Flexible models tend to have less bias, and higher variance.
+
+One disadvantage with a very flexible model is that for regression and classsifcation, which require estimating a large number of parameters, the variance increases, and as a result the model may overfit.
+
+A more flexible model would be preferred to a less flexible model if we are interested in prediction, rather than interpretation. 
+
+On the other hand, a less flexible model would be preferred if we are interested in inference and interpretation of the results.
+
+## Problem 3: 
+
+ISLR Conceptual Exercise 2 asks you (among other things) to determine whether each
+scenario is a classification or regression problem. For each scenario, now suppose we
+wanted to do the opposite. That is, if it was a classification problem, suppose we wanted to
+instead treat it as a regression problem and vice versa. What would need to change about
+the response and the way it’s measured? In other words, think about how the descriptions
+could be restated in order to change the type of problem (regression or classification) being
+discussed.
+
+### 3a)
+
+In 2a), to go from a `regression` to `classification`, we can change the continuous response, to a binary response. In particular, we can consider encoding a 0 to indicate that the CEO salary did not change significantly, and a 1 to indicate that the CEO salary changed significantly. In this sense, our problem would be "Determining what factors influence whether a CEO's salary will change."
+
+### 3b)  
+
+In 2b), to go from a `classification` to `regression`, we can change the categorical response, to a continuous response. In particular, we can consider the revenue that the new product brings in. In this sense, our problem would be "Predicting how successful launching a new product will be."
+
+### 3c) 
+
+In 2c), to go from a `regression` to `classification`, we can change the continuous response, to a binary response. In particular, we can consider encoding a 0 to indicate that the model predicts there will be no % change in the USD/Euro exchange rate in relation to the weekly changes in the world stock markets, a 1 to indicate that the model predicts there will be an increase in the % change in the USD/Euro exchange rate, and a -1 to indicate that the model predicts there will be a decrease in the % change in the USD/Euro exchange rate. In this sense, our problem would be "Predicting how the USD/Euro exchange rate will change."
+
+\pagebreak
+
+## Exercise 8:
+
+### 8a)
+
+```{r problem 8a, warning = FALSE, message = FALSE, results = 'hide'}
+college <- read.csv(file = 'C:/Users/gordo/Desktop/College.csv')
+college
+```
+
+### 8b) 
+
+```{r, problem 8b, warning = FALSE, message = FALSE, results = 'hide'}
+fix(college)
+rownames(college) <- college[,1]
+
+
+college <- college[,-1]
+fix(college)
+college
+```
+
+### 8c)
+
+```{r, problem 8c, fig.align='center'}
+summary(college)
+
+pairs(college[,1:10])
+boxplot(college$Outstate~college$Private, horizontal=TRUE, xlab = 'Private',
+        ylab = 'Outstate', col = c("orange", "green"))
+```
+
+### 8d)
+
+```{r problem 8d, fig.align='center'}
+Elite <- rep("No", nrow(college))
+Elite[college$Top10perc > 50] = "Yes"
+Elite <- as.factor(Elite)
+college = data.frame(college, Elite)
+
+summary(college)
+boxplot(college$Outstate~college$Elite, horizontal=TRUE, xlab = 'Elite', 
+        ylab = 'Outstate', col = c("orange", "green"))
+```
+
+### 8e)
+
+```{r problem 8e, fig.align='center'}
+par(mfrow=c(2,2))
+hist(college$Apps, breaks=60, xlim=c(0,25000), main="Histogram of College Application",
+     xlab = 'Apps', col = 'orange')
+hist(college$Enroll, breaks=30, main="Histogram of College Enrollment",
+     xlab = 'Enroll', col = 'red')
+hist(college$Expend, breaks=30, main="Histogram of College Expenditure", 
+     xlab = 'Expend', col = 'blue')
+hist(college$Outstate, main="Histogram of College Outstate", 
+     xlab = 'Outstate', col = 'gray')
+```
+
+### 8f)
+```{r problem8f}
+summary(lm(college$Expen ~ college$Outstate), data = college) #print out result
+summary(lm(college$Expen ~ college$Apps), data = college) #print out result
+
+```
+The p-value is significantly less than 0.01. Thus, we can conclude that the there is a significant relationship between college expenditure and whether the student is out of state. Perhaps out of state students have to fork more money up for college than in-state students.
+
+The p-value is significantly less than 0.01. Thus, we can conclude that the there is a significant relationship between college expenditure and whether the number of college applications. Perhaps the number of applications is correlated to the number of accepted students, resulting in an increase in cost for tuition.
+
+## Exercise 9:
+
+### 9a)
+```{r problem 9a, results='hide'}
+auto <- read.csv(file = 'C:/Users/gordo/Desktop/Auto.csv')
+auto
+```
+
+The quantitative predictors are: `mpg`, `cylinders`, `displacement`, `horsepower`, `weight`, `acceleration`, and `year`.
+
+The qualitative predictors are: `origin`, and `name`.
+
+### 9b) 
+```{r problem 9b}
+range(auto$mpg)
+range(auto$cylinders)
+range(auto$displacement)
+range(auto$horsepower)
+range(auto$weight)
+range(auto$acceleration)
+range(auto$year)
+```
+
+### 9c)
+```{r problem 9c}
+sapply(auto[,1:7], mean)
+sapply(auto[,1:7], sd)
+```
+
+### 9d)
+```{r problem 9d}
+new_mat <- auto[,-(8:9)]   # drop origin, name
+new_mat <- new_mat[-(10:85),]  # drop rows
+sapply(new_mat, range)
+sapply(new_mat, mean)
+sapply(new_mat, sd)
+```
+
+### 9e)
+```{r problem 9e, fig.align='center'}
+pairs(auto)
+
+cor(auto$mpg, auto$cylinders)
+cor(auto$mpg, auto$displacement)
+cor(auto$mpg, auto$horsepower)
+cor(auto$mpg, auto$year)
+cor(auto$horsepower, auto$weight)
+plot(auto$mpg, auto$weight)
+plot(auto$mpg, auto$cylinders)
+plot(auto$mpg, auto$year)
+```
+From the plots, we can see that `mpg` is negatively correlated with`cylinders`, `displacement`, `horsepower`, and `weight`.
+
+We can also say that `horsepower` is negatively correlated with `weight`, and typically `mpg` increases with newer models.
+
+### 9f)
+
+Yes, the plots indicate that there are relationships between `mpg` and other variables in the Auto data set. We can also tell by looking at the respective correlations between `mpg` and other variables.
+
+## Exercise 10:
+
+### 10a)
+```{r problem 10a}
+library(MASS)
+dim(Boston)
+```
+There are 506 rows and 14 columns. The rows represent an observation for a housing suburb in Boston. The columns represent the features.
+
+### 10b)
+```{r problem 10b, fig.align = 'center'}
+pairs(Boston)
+```
+`crim` seems to be correlated with: `age`, `dis`, `rad`, `tax`, `ptratio`.
+
+`zn` seems to be correlated with: `indus`, `nox`, `age`, `lstat`.
+
+`indus` seems to be correlated with: `age`, `dis`.
+
+`nox` seems to be correlated with: `lstat`.
+
+`lstat` seems to be correlated with: `medv`.
+
+### 10c)
+```{r problem 10c, fig.align = 'center'}
+par(mfrow=c(3,2))
+plot(Boston$age, Boston$crim)
+plot(Boston$dis, Boston$crim)
+plot(Boston$rad, Boston$crim)
+plot(Boston$tax, Boston$crim)
+plot(Boston$ptratio, Boston$crim)
+```
+Seems that with older homes, there tends to be more crime. With homes closer to the work-area, there are also more crimes. The higher the index of accessibility seems, the higher the crime seems to be. The higher the tax rate, the more crime there is. Also the higher the pupil:teacher ratio, the more crime there seems to be. 
+
+### 10d)
+```{r problem 10d, warning = FALSE, message = FALSE, fig.align = 'center'}
+library(ggplot2)
+g <- ggplot(Boston, aes(x=1:nrow(Boston), y=crim))
+g + geom_point() + geom_line()
+g <- ggplot(Boston, aes(x=1:nrow(Boston), y=tax))
+g + geom_point() + geom_line()
+g <- ggplot(Boston, aes(x=1:nrow(Boston), y=ptratio))
+g + geom_point() + geom_line()
+```
+Looking at the plots, there are definitely outliers for `crim` and `tax`, but with the `ptratio` variable, there is no clear outlier. I would say that for crime rates and tax rates, there are definitely suburbs with outliers, and are unusualy, but with the Pupil-teacher tatios, there are no apparent outliers, but potentially some influential points.
+
+### 10e)
+```{r problem 10e}
+nrow(subset(Boston, chas == 1))
+```
+
+There are `35` suburbs that bound the Charles river.
+
+### 10f) 
+```{r problem 10f}
+median(Boston$ptratio)
+```
+
+The median pupil-teacher ratio among towns in Boston is: `19.05`.
+
+```{r problem 10g}
+(min_median <- Boston[Boston$medv == min(Boston$medv),])
+sapply(Boston, quantile)
+```
+`age` and `rad` are at max. 
+
+`crim`, `indus`, `nox`, `tax`, `ptratio`, `lstat` at or above the 3rd quartile.
+
+`zn`, `rm`, `dis` are at min.
+
+### 10h)
+```{r problem 10h}
+nrow(subset(Boston, rm > 7))
+nrow(subset(Boston, rm > 8))
+
+summary(subset(Boston, rm > 8))
+summary(Boston)
+
+rbind(sapply(Boston[Boston$rm > 8,], mean), sapply(Boston, median))
+plot(Boston$crim)
+plot(subset(Boston, rm > 8)$crim)
+```
+
+For the suburbs that average more than eight rooms per dwelling, there is a lower crime rate, and a lower lstat. This is simply by looking at the range, and the respective scatter plots. Also there is a much lower `medv` value than the overall data set, and a much higher `lstat` value.

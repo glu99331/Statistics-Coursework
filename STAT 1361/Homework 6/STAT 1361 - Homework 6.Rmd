@@ -1,0 +1,201 @@
+---
+title: "STAT 1361 - Homework 6"
+author: "Gordon Lu"
+date: "4/1/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# ISLR Conceptual Exercise 5:
+
+## 5a)
+$\hat{g}_2$ will have a smaller training RSS, since it will be a higher order polynomial which will have more degrees of freedom, thus producing a more flexible model.
+
+## 5b) 
+$\hat{g}_1$ will have a smaller test RSS, as $\hat{g}_2$ could overfit with the extra degree of freedom, or to be more precise, it could overfit due to its high flexibility.
+
+## 5c) 
+When $\lambda$ = 0, the test and training RSS will be the same, so $\hat{g}_2 = \hat{g}_1$.
+
+# ISLR Applied Exercise 8:
+```{r ex8, fig.align = 'center'}
+library(ISLR)
+pairs(Auto[1:7])
+```
+`mpg` appears to have a non-linear relationship with `horsepower`, `displacement`, and `weight`.
+
+The relationship between `mpg` and `horsepower` will be explored below in-depth.
+
+```{r ex8p2, fig.align = 'center'}
+fit.1 = lm(mpg~horsepower, data = Auto)
+fit.2 = lm(mpg~poly(horsepower,2), data = Auto)
+fit.3 = lm(mpg~poly(horsepower,3), data = Auto)
+fit.4 = lm(mpg~poly(horsepower,4), data = Auto)
+fit.5 = lm(mpg~poly(horsepower,5), data = Auto)
+fit.6 = lm(mpg~poly(horsepower,6), data = Auto)
+
+anova(fit.1, fit.2, fit.3, fit.4, fit.5, fit.6)
+```
+Training RSS decreases over time. Quadratic polynomic is sufficient from ANOVA-perspective.
+  
+When taking into account the plot below and the ANOVA results, there is strong evidence of a non-linear relationship between `horsepower` and `mpg`.
+
+I will now compare various fits to the data:
+
+```{r ex8p3, fig.align = 'center'}
+hplim = range(Auto$horsepower)
+hp.grid = seq(from=hplim[1],to=hplim[2])
+pred1 = predict(fit.1,newdata=list(horsepower=hp.grid))
+pred2 = predict(fit.2,newdata=list(horsepower=hp.grid))
+pred3 = predict(fit.5,newdata=list(horsepower=hp.grid))
+plot(Auto$horsepower, Auto$mpg, xlim=hplim, cex.lab=1.5)
+lines(hp.grid,pred1,lwd=3,col="blue",lty=2)
+lines(hp.grid,pred2,lwd=3,col="red")
+lines(hp.grid,pred3,lwd=3,col="green",lty=2)
+legend(150,45,legend=c("Linear fit", "Quadratic fit", "Quintic fit"),
+       col=c("blue", "red", "green"),lty=c(2,1,2), lwd=c(3,3,3),cex=1.5)
+```
+As can be seen, a quadratic model likely provides the best fit to the underlying data. 
+
+# ISLR Applied Exercise 9:
+## 9a)
+```{r ex9a, fig.align = 'center'}
+library(MASS)
+attach(Boston)
+poly.fit = glm(nox ~ poly(dis, 3), data = Boston)
+summary(poly.fit)
+plot(Boston[, c('dis', 'nox')])
+pred = predict(poly.fit, data.frame(dis=seq(min(dis), max(dis), length.out = 100)))
+lines(seq(min(dis), max(dis), length.out = 100), pred, col = "red")
+```
+## 9b)
+```{r ex9b, fig.align = 'center'}
+x = seq(min(dis), max(dis), length.out = 100)
+cols = rainbow(10)
+plot(Boston[, c('dis', 'nox')])
+rss = c()
+for(pwr in 1:10){
+  poly.fit = glm(nox ~ poly(dis, pwr), data = Boston)
+  pred = predict(poly.fit, data.frame(dis = x))
+  lines(x, pred, col = cols[pwr])
+  
+  rss = c(rss, sum(poly.fit$residuals^2))
+}
+legend(x = 'topright', legend = 1:10, col = cols, lty = c(1, 1), lwd = c(2, 2))
+plot(rss, xlab = "Degree of the polynomial", ylab = "RSS", type = "l")
+```
+## 9c)
+```{r ex9c, fig.align = 'center'}
+library(boot)
+set.seed(1)
+poly.mse = c()
+for(degree in 1:7){
+  poly.fit = glm(nox ~ poly(dis, degree, raw = T), data = Boston)
+  mse = cv.glm(poly.fit, data = Boston, K = 10)$delta[1]
+  poly.mse = c(poly.mse, mse)
+}
+plot(poly.mse, type = "l", xlab = "Degree of the polynomial", ylab = "Cross-validation MSE")
+points(which.min(poly.mse), poly.mse[which.min(poly.mse)], col = "red", pch = 20, cex = 2)
+```
+
+Clearly, from the above graphic, the polynomial with the smallest MSE is the one with degree 4.
+
+## 9d)
+```{r ex9d, fig.align = 'center'}
+library(splines)
+library(MASS)
+spline.fit = lm(nox ~ bs(dis, df = 4), data = Boston)
+x = seq(min(Boston[, "dis"]), max(Boston[, "dis"]), length.out = 100)
+y = predict(spline.fit, data.frame(dis = x))
+plot(Boston[, c("dis", "nox")], ylim = c(0, 1))
+lines(x, y, col = cols[4])
+```
+
+From the above plot, the polynomial with 4 degrees of freedom is shown above. I went ahead and used 100 knots just so the curve was as smooth as possible; using something like 5 knots makes it a lot jumpier/jagged. I figured 100 knots is a safe number to have in order to get the full power of the model while still making it look nice and ensuring it fits the data.
+
+## 9e)
+```{r ex9e, fig.align = 'center'}
+plot(Boston[, c("dis", "nox")], ylim = c(0, 1))
+x = seq(min(Boston[, "dis"]), max(Boston[, "dis"]), length.out = 100)
+rss = c()
+for(df in 3:10){
+  spline.fit = lm(nox ~ bs(dis, df = df), data = Boston)
+  y = predict(spline.fit, data.frame(dis = x))
+  lines(x, y, col = cols[df])
+  
+  rss = c(rss, sum(spline.fit$residuals^2))
+}
+legend(x = "topright", legend = 3:10, text.col = cols[3:10], text.width = 0.5, bty = "n", horiz = T)
+plot(3:10, rss, xlab = "Degrees of freedom", ylab = "Train RSS", type = "l")
+```
+
+The model with the lowest training RSS is the one with 10 degrees of freedom. However, it's important to note in the above graph the scale on the y-axis does not have a large range. As such, all models are very close to being the same; the one with 10 df is only marginally better.
+
+## 9f)
+```{r ex9f, fig.align = 'center'}
+library(boot)
+set.seed(1)
+spline.mse = c()
+for(df in 3:10){
+  Boston.model = model.frame(nox ~ bs(dis, df = df), data = Boston)
+  names(Boston.model) = c("nox", "bs.dis")
+  
+  spline.fit = glm(nox ~ bs.dis, data = Boston.model)
+  mse = cv.glm(spline.fit, data = Boston.model, K = 10)$delta[1]
+  spline.mse = c(spline.mse, mse)
+}
+plot(3:10, spline.mse, type = "l", xlab = "Degrees of freedom", ylab = "Cross-validation Spline MSE")
+x = which.min(spline.mse)
+points(x + 2, spline.mse[x], col = "red", pch = 20, cex = 2)
+```
+
+Clearly, from the above plot, the model with 6 degrees of freedom has the smallest MSE by a very small margin compared to the other models.
+
+# ISLR Applied Exercise 10:
+## 10a)
+```{r ex10a}
+library(ISLR)
+library(leaps)
+set.seed(1)
+train = sample(1:nrow(College), 500)
+test = -train
+forward = regsubsets(Outstate ~ ., data = College, method = "forward", nvmax = 17)
+plot(1 / nrow(College) * summary(forward)$rss, type = "l", xlab = "Number of predictors", ylab = "MSE", xaxt = "n")
+axis(side = 1, at = seq(1, 17, 2), labels = seq(1, 17, 2))
+which(summary(forward)$which[7, -1])
+```
+
+## 10b)
+```{r ex10b, fig.align = 'center'}
+library(gam)
+gam.fit = gam(Outstate ~ Private + s(Room.Board) + s(Personal) + s(PhD) + s(perc.alumni) + s(Expend) + s(Grad.Rate), data = College[train, ])
+par(mfrow = c(2, 3))
+plot(gam.fit, se = T, col = "blue")
+```
+
+Unfortunately, `Private` is a qualitative predictor, so we couldn't fit a smooth spline onto it, but we did so with the other 6 predictors which were quantitative. It doesn't look like any of the splines are too complex, as in they don't look like they overfit. All of the models look different from each other, which is a good indicator that they all have different relationships with out-of-state tuition, reducing concerns with collinearity.
+
+## 10c)
+```{r ex10c}
+gam.pred = predict(gam.fit, College[test, ])
+gam.mse = mean((College[test, "Outstate"] - gam.pred)^2)
+gam.mse
+gam.tss = mean((College[test, "Outstate"] - mean(College[test, "Outstate"]))^2)
+test.rss = 1 - gam.mse / gam.tss
+test.rss
+```
+
+We can see the test MSE is lower than the training MSE, which shows the model performs better on the test set. As such, we don't have any concerns of overfitting. In addition, the correlation is about 0.8, so the model explains a good amount of variance in out-of-state tuition.
+
+## 10d)
+```{r ex10d}
+summary(gam.fit)
+```
+
+From the above output, all the predictors are statistically significant, so we will assume all the predictors have a non-linear relationship with out-of-state tuition.
+
+
+

@@ -1,0 +1,365 @@
+---
+title: "STAT 1361 - Homework 2"
+author: "Gordon Lu"
+date: "2/11/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Problem 2)
+
+## ISLR Conceptual Exercise 3 
+
+### 3a) 
+Point iii is correct, as for GPAs above 35/10 = 3.5, males will earn more.
+
+### 3b) 
+Y(Gender = 1, IQ = 110, GPA = 4.0)
+= 50 + 20 * 4 + 0.07 * 110 + 35 + 0.01 (4 * 110) - 10 * 4
+= 137.1 thousand dollars.
+
+### 3c) 
+False, the IQ score scale is larger than the scale of the other predictors (~100 vs. 1-4 for GPA and 0-1 for gender). Even if all the predictors have the same impact on salary, the will always be ultimately smaller than for IQ predictors.
+
+## ISLR Conceptual Exercise 4 
+
+### 4a) 
+I would expect the cubic regression model to have a lower training RSS than the linear regression model, since it could result in a tighter
+fit against data that matched with a wider irreducible error. Also, typically having more predictors generally means better (lower) RSS on training data, however issues with Collinearity and confounding variables may be introduced into the model.
+
+### 4b) 
+I would expect the linear regression model to have a lower test RSS than the cubic regression model, as the potential overfitting that the cubic model introduces would have more error than a simple linear regression model. 
+
+### 4c)
+The cubic regression model would produce a lower RSS on the training set, as it can better account and adjust for non-linearities in the data, additionally, it has a higher flexibility than the linear regression model.
+
+### 4d)
+There's not enough information to determine whether test RSS will be lower for linear regression or cubic regression. We simply do not know how "non-linear" the data is. If it's closer to linear than cubic, the linear regression test RSS could be lower than the cubic regression test RSS, and vice versa. This is due to the bias-variance tradeoff: it's not clear what level of flexibility will fit the data better.
+
+# Problem 3)
+
+## ISLR Applied Exercise 9)
+
+### 9a)
+```{r ex9a, warning = FALSE, fig.align='center'}
+auto <- read.csv(file = 'C:/Users/gordo/Desktop/Auto.csv')
+pairs(auto)
+```
+### 9b) 
+```{r ex9b, warning = FALSE}
+cor(subset(auto, select=-name))
+```
+### 9c) 
+```{r ex9c, warning = FALSE}
+summary(lm(mpg ~ . -name, data = auto))
+```
+i) Yes, there is a relationship. This is apparent through the test statistics.
+
+ii) It appears that `displacement`, `weight`, `year`, and `origin` all have a statistically significant relationship to the response, `mpg`.
+
+iii) The regression coefficient for year, 0.7508, suggests that for every one year, mpg increases by the coefficient. In other words, cars become more fuel efficient every year by almost 0.75 mpg / year.
+
+### 9d) 
+```{r ex9d, warning = FALSE, fig.align = 'center'}
+par(mfrow=c(2,2))
+plot(lm(mpg ~ . -name, data = auto))
+```
+The residual plot seems to indicate a weak fit, likely indicating evidence of non-linearity. From the leverage plot, it appears that observation 14 has high leverage, though not a very large residual to be regarded as an outlier.
+
+```{r ex9d2, warning = FALSE}
+plot(predict(lm(mpg ~ . -name, data = auto)), rstudent(lm(mpg ~ . -name, data = auto)))
+```
+By honing in on the residual plot, it is apparent that points with studentized residuals larger than 3 are potential outliers.
+
+### 9e)
+```{r ex9e, warning =  FALSE}
+interaction1 <- lm(mpg ~ displacement + weight + year * origin, data = auto)
+interaction2 <- lm(mpg ~ displacement+ origin + year* weight, data = auto)
+base <- lm(mpg ~ displacement + weight + year + origin, data = auto)
+interaction3 <- lm(mpg ~ year + origin + displacement * weight, data = auto)
+interaction4 <- lm(mpg ~ cylinders * displacement+displacement * weight, data = auto)
+
+summary(base)
+summary(interaction1)
+summary(interaction2)
+summary(interaction3)
+summary(interaction4)
+
+```
+
+It appears interactions 1-3 all have statistically significant effects. As for interaction 4, after observing the p-values, we can see the interaction between cylinders and displacement is not statistically significant, while the interaction between displacement and weight is statistically significant.
+
+### 9f)
+```{r ex9f, warning = FALSE}
+
+nonlineart1 <- lm(mpg ~ poly(displacement,3) + weight + year + origin, data = auto)
+nonlineart2 <- lm(mpg ~ displacement + I(log(weight)) + year + origin, data = auto)
+nonlineart3 <- lm(mpg ~ displacement + I(weight^2) + year + origin, data = auto)
+summary(nonlineart1)
+summary(nonlineart2)
+summary(nonlineart3)
+```
+Along all of the tested models, `displacement^2` has a larger effect than any other `displacement` polynomials tested.
+
+
+## ISLR Applied Exercise 10)
+
+### 10a)
+```{r ex10a, warning = FALSE}
+carseats <- read.csv(file = 'C:/Users/gordo/Desktop/Carseats.csv')
+clm <- lm(Sales ~ Price + Urban + US, data = carseats)
+```
+
+### 10b) 
+```{r ex10b, warning = FALSE}
+summary(clm)
+```
+
+Price: The result of the multiple regression model implies that there is a significant relationship between Price and Sales. The coefficient implies a negative relationship between Price and Sales. As Price increases, Sales decrease, vice versa. 
+
+UrbanYes: The result of the multiple regression model implies that there is not s significant relationship between Sales and Urban. However the coefficient from the summary tells us that Sales are 2.2% lower for Urban locations. 
+
+USYes: The result of the multiple regression model implies that there is a significant relationship between US and Sales. The coefficient implies a positive relationship between US and Sales. As more people are in the US, Sales increase, vice versa. 
+
+### 10c)
+Sales = 13.043 - 0.054 x Price - 0.022 x UrbanYes + 1.201 x USYes
+
+### 10d) 
+We can reject the null hypothesis for Price and USYes (coefficients have low p-values < 0.01).
+
+### 10e)
+```{r ex10e, warning = FALSE}
+better_fit <- lm(Sales ~ Price + US, data = carseats)
+summary(better_fit)
+```
+
+### 10f)
+Based on the RSE and R^2 of the linear regressions, they both fit the data similarly, with linear regression from (e) fitting the data slightly better.
+
+### 10g) 
+```{r ex10g, warning = FALSE}
+confint(better_fit)
+```
+
+### 10h)
+```{r ex10h, warning = FALSE, fig.align = 'center'}
+plot(predict(better_fit), rstudent(better_fit))
+```
+The studentized residuals all seem to be between |3|, so there does not appear to be any apparent outliers.
+
+```{r ex10h2, warning = FALSE, fig.align = 'center'}
+par(mfrow=c(2,2))
+plot(better_fit)
+```
+There are a few observations that greatly exceed (p+1)/n (0.0076) on the leverage plot that suggest that the corresponding points have high leverage.
+
+## ISLR Applied Exercise 13)
+
+### 13a)
+```{r ex13a, warning = FALSE}
+set.seed(1)
+x <- rnorm(100, 0, 1)
+```
+### 13b) 
+```{r ex13b, warning = FALSE}
+eps <- rnorm(100, 0, 0.25)
+```
+### 13c)
+```{r ex13c, warning = FALSE}
+y <- -1 + (0.5*x) + eps
+length(y)
+```
+The length of `y` is 100, $\beta_0$ is -1 and $\beta_1$ is 0.5
+
+### 13d)
+```{r ex13d, warning = FALSE, fig.align = 'center'}
+plot(x,y)
+```
+There is a strong, positive linear relationship between `y` and `x`, as to be expected.
+
+### 13e) 
+```{r ex13e, warning = FALSE}
+fit_lm <- lm(y ~ x)
+summary(fit_lm)
+```
+The linear regression fits a model that is very close to the true values of the coefficents that was constructed in 13c). Additionally, on running F-test for overall significance, we would reject the null, and conclude that the predictor, `x` does explain `y` fairly well.
+
+### 13f)
+```{r ex13f, warning = FALSE, fig.align = 'center'}
+plot(x,y)
+abline(-1, 0.5, col="green")  # ground truth model
+abline(fit_lm, col="red")    # regression fitted on data
+legend(x= "topleft", inset = 0.02, legend=c("Population Regression", "Model Fit"),
+       col=c("red", "green"), lty=1:2, cex=0.8)
+```
+
+```{r ex13g, warning = FALSE}
+lm_quad <- lm(y ~ x + I(x^2))
+summary(lm_quad)
+```
+Although the R^2 and RSE have slightly increased over the training data, the large F-statistic implies that the addition of the quadratic term has resulted in the significance of the new model to be significantly related to y.
+
+### 13h)
+```{r ex13h, warning = FALSE, fig.align = 'center'}
+smaller_eps = rnorm(100, 0, 0.10)
+x1 = rnorm(100)
+y1 = -1 + 0.5*x1 + smaller_eps
+plot(x1, y1)
+small_eps_fit = lm(y1~x1)
+summary(small_eps_fit)
+```
+```{r ex13h2, warning = FALSE, fig.align = 'center'}
+plot(x1,y1)
+abline(-1, 0.5, col="green")  # ground truth model
+abline(fit_lm, col="red")    # regression fitted on data
+legend(x= "topleft", inset = 0.02, legend=c("Population Regression", "Model Fit"),
+       col=c("red", "green"), lty=1:2, cex=0.8)
+```
+The error observed in R^2 and RSE decrease significantly. Additionally, the points are more tightly clustered around the regression lines.
+
+### 13i)
+```{r ex13i, warning = FALSE, fig.align = 'center'}
+larger_eps = rnorm(100, 0, 0.7)
+x2 = rnorm(100)
+y2 = -1 + 0.5*x2 + larger_eps
+plot(x2, y2)
+large_eps_fit = lm(y2~x2)
+summary(large_eps_fit)
+```
+```{r ex13i2, warning = FALSE, fig.align = 'center'}
+plot(x2,y2)
+abline(-1, 0.5, col="green")  # ground truth model
+abline(fit_lm, col="red")    # regression fitted on data
+legend(x= "topleft", inset = 0.02, legend=c("Population Regression", "Model Fit"),
+       col=c("red", "green"), lty=1:2, cex=0.8)
+```
+The error observed in R^2 and RSE increase significantly. Additionally, the points are more scattered, and distant from the regression lines.
+
+### 13j)
+```{r ex13j, warning = FALSE}
+confint(fit_lm)
+confint(small_eps_fit)
+confint(large_eps_fit)
+```
+All intervals seem to be centered on approximately 0.5, with the model with the smaller epsilon’s interval being narrower than the orifinal model’s interval and the model with the larger epsilon’s interval being wider than the original model’s interval. Generally, we can say that confidence intervals will be tighter for populations with smaller variances.
+
+## ISLR Applied Exercise 14)
+
+### 14a)
+```{r ex14a, warning = FALSE}
+set.seed(1)
+x1 = runif(100)
+x2 = 0.5*x1 + rnorm(100)/10
+y = 2 + 2*x1 + 0.3*x2 + rnorm(100)
+```
+Population regression is $y = \beta_{0} + \beta_{1} x_1 + \beta_{2} x_2 + \varepsilon$, where $\beta_{0}=2$, $\beta_{1}=2$ and $\beta_{2}=0.3$
+
+### 14b)
+```{r ex14b, warning = FALSE, fig.align = 'center'}
+cor(x1,x2)
+plot(x1,x2)
+```
+`x1` and `x2` have a strong, positive linear relationship.
+
+### 14c) 
+```{r ex14c, warning = FALSE}
+lm_ex14 <- lm(y ~ x1 + x2)
+summary(lm_ex14)
+```
+$\beta_0$ = 2.1305, $\beta_1$ = 1.4396, $beta_2$ = 1.0097
+
+The coefficient for `x1` is statistically significant, but the coefficient for `x2` is not statistically significant given that `x1` is already in the model. These betas try to estimate the population betas: $\hat{\beta_{0}}$ is close (rounds to 2), $\hat{\beta_{1}}$ is 1.44 instead of 2 with a high standard error and $\hat{\beta_{2}}$ is farthest off.
+
+### 14d)
+```{r ex14d, warning = FALSE}
+fit_x1 <- lm(y ~ x1)
+summary(fit_x1)
+```
+We can reject the null hypothesis, and conclude that `x1` has a significant relationship with `y`.
+
+### 14e)
+```{r ex14e, warning = FALSE}
+fit_x2 <- lm(y ~ x2)
+summary(fit_x2)
+```
+We can reject the null hypothesis, and conclude that `x2` has a significant relationship with `y`.
+
+### 14f)
+No. Without the presence of other predictors, both $\beta_1$ and $\beta_2$ are statistically significant. In the presence of other predictors, $\beta_2$ is no longer statistically significant. This may imply that `x1` may explain something that `x2` already does, adding `x2` may have introduced collinearity, or perhaps `x2` is a confounding variable.
+
+### 14g) 
+```{r ex14g, warning = FALSE, fig.align = 'center'}
+x1 <- c(x1, 0.1)
+x2 <- c(x2, 0.8)
+y <- c(y,6)
+
+fit_lm_new <- lm(y ~ x1 + x2)
+fit_x1_new <- lm(y ~ x1)
+fit_x2_new <- lm(y ~ x2)
+summary(fit_lm_new)
+summary(fit_x1_new)
+summary(fit_x2_new)
+
+par(mfrow=c(2,2))
+plot(fit_lm_new)
+plot(fit_x1_new)
+plot(fit_x2_new)
+```
+In the first model, the new observation shifts `x1` to be statistically insignificant and shifts `x2` to be statistiscal significant from the change in p-values between the two linear regressions.
+
+The new point is an outlier for x2 and has high leverage for both x1 and x2. 
+
+Looking at the regression with `x1` and `x2`, the residual vs. leverage plot shows that observation 101 is standing out. 
+
+Looking at the regression with `x1` only, the new point has high leverage, but doesn't cause issues, since the new point is not an outlier for `x1` or `y`.
+
+Looking at the regression with `x2` only, the new point has high leverage, but doesn't cause issues, since it falls close to the regression line.
+
+# Problem 4)
+
+### 4a)
+```{r 4a, warning = FALSE}
+set.seed(2)
+df.train <- data.frame(matrix(rnorm(25*25,0,1),ncol = 25))
+names(df.train)[25] <- "y"
+
+```
+### 4b)
+```{r 4b, warning = FALSE}
+df.test <- data.frame(matrix(rnorm(25*25,0,1),ncol = 25))
+names(df.test)[25] <- "y"
+
+```
+### 4c)
+```{r 4c, warning = FALSE}
+mse.train <- rep(0,24)
+mse.test <- rep(0,24)
+for(i in 1:24){
+
+  mod <- lm(y~.,data = df.train[,c(1:i,25)])
+  mse.test[i] <- mean((predict(mod,newdata = df.test[,c(1:i,25)])-df.test[,"y"])^2)
+  mse.train[i] <- mean((predict(mod)-df.train[,"y"])^2)
+ 
+}
+
+```
+## 4d)
+```{r 4d, warning = FALSE, fig.align = 'center'}
+plot(c(1:24), mse.train, type="b", pch=19, col="red", xlab="Number of Predictors", 
+     ylab="MSE", ylim = range(0, 3))
+# Add a line
+lines(c(1:24), mse.test, pch=18, col="blue", type="b", lty=2)
+# Add a legend
+legend(x= "topleft", inset = 0.02, legend=c("Training MSE", "Test MSE"),
+       col=c("red", "blue"), lty=1:2, cex=0.8)
+```
+
+## 4e)
+What happens to the training error as more predictors are added to the model? What
+about the test error?
+
+The training error appears to decrease, while the test error appears to increase.

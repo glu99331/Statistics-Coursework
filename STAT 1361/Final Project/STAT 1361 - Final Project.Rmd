@@ -1,0 +1,524 @@
+---
+title: "STAT 1361 - Final Project"
+author: "Gordon Lu"
+date: "4/16/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#### Libraries ####
+library(leaps)
+library(ggplot2)
+library(MASS)
+library(caret)
+library(tidyr)
+# library(regclass) #for VIF
+require("car")
+library(olsrr) # to get partial correlations and VIF
+library(glmnet) # For lasso and ridge regression
+library(randomForest) # For Random Forests
+library(tree) # For trees
+library(gbm) # For gradient boosted trees
+library(analogue) # For PCR
+library(pls) # For PLS
+library(gam) # For GAM
+library(pracma)
+```
+
+
+```{r}
+set.seed(100)
+all_mses <- c()
+# Column Indices to Variable Mappings:
+####################################
+        # 1  -> id
+        # 2  -> price
+        # 3  -> desc
+        # 4  -> numstories
+        # 5  -> yearbuilt
+        # 6  -> exteriorfinish
+        # 7  -> rooftype
+        # 8  -> basement
+        # 9  -> totalrooms
+        # 10 -> bedrooms 
+        # 11 -> bathrooms
+        # 12 -> fireplaces
+        # 13 -> sqft
+        # 14 -> lotarea
+        # 15 -> state
+        # 16 -> zipcode
+        # 17 -> AvgIncome
+####################################
+df.train <- read.table("train-1.csv", sep=",", header=T)
+head(df.train$fireplaces)
+summary(df.train)
+# ID doesn't help with regression, it's just to identify the house. 
+# AvgIncome and State are enough to cover what ZipCode is trying to...
+remove_cols <- c(1,16) #try with zipcode: 16
+newdf = df.train[, -(remove_cols)]
+# After removing ID and Zipcode...
+####################################
+        # 1  -> price
+        # 2  -> desc
+        # 3  -> numstories
+        # 4  -> yearbuilt
+        # 5  -> exteriorfinish
+        # 6  -> rooftype
+        # 7  -> basement
+        # 8  -> totalrooms
+        # 9  -> bedrooms 
+        # 10 -> bathrooms
+        # 11 -> fireplaces
+        # 12 -> sqft
+        # 13 -> lotarea
+        # 14 -> state
+        # 15 -> AvgIncome
+####################################
+# Try a 60/40 Train-Test Split
+train_size <- .60*nrow(newdf)
+test_size <- .40*nrow(newdf)
+# Shuffle around train and test...
+train <- sample(1:nrow(newdf), train_size)
+trainX <- newdf[train, -1]
+trainY <- newdf[train, 1] 
+trainSet <- data.frame(trainY, trainX)
+testX <- newdf[-train, -1]
+testY <- newdf[-train, 1]
+testSet <- data.frame(testY, testX)
+```
+
+```{r}
+# Rename the response to be Price for both the training set and test set
+colnames(trainSet)[1] <- "price"
+colnames(testSet)[1] <- "price"
+
+# Fireplaces has several NAs... either get rid of fire places all together, or replace it with the mean....
+fire_mean <- ceil(mean(trainSet$fireplaces, na.rm = TRUE))
+trainSet$fireplaces <- replace_na(trainSet$fireplaces, fire_mean)
+fire_mean <- ceil(mean(testSet$fireplaces, na.rm = TRUE))
+testSet$fireplaces <- replace_na(testSet$fireplaces, fire_mean)
+
+#Baseline is mean difference between train and test price....
+baseline.mse <- mean((trainSet$price - testSet$price)^2) 
+baseline.mse
+
+all_mses <- c(all_mses, c("baseline", baseline.mse))
+```
+```{r}
+# Predict using a Multiple Linear Regression model
+mod <- lm(price ~., data = trainSet)
+pred.lm <- predict(mod, testSet)
+mse <- mean((pred.lm-testY)^2)
+mse
+```
+
+
+```{r}
+set.seed(1)
+# Stepwise regression model
+step.model <- stepAIC(mod, direction = "both",
+                      trace = FALSE)
+step.model$anova
+# Look at VIFs and Partial Correlations
+ols_coll_diag(step.model)
+ols_correlations(step.model)
+car::vif(step.model) 
+# Stepwise aside, if we look at the correlations of the desc variable, yearbuilt, exteriorfinish and basement variable, they're all pretty low.
+# Predict with stepwise regression model
+pred.steplm <- predict(step.model, testSet)
+step.mse <- mean((pred.steplm-testY)^2)
+# As we can see from the anova table, Stepwise regression tells us that totalrooms is the only detected insignificant predictor...
+step.mse # The MSE isn't much better...
+all_mses <- c(all_mses, c("stepwise", step.mse))
+```
+```{r}
+# Backward regression model
+backward.model <- stepAIC(mod, direction = "backward",
+                      trace = FALSE)
+backward.model$anova
+# Not much change
+pred.bckwdlm <- predict(backward.model, testSet)
+backward.mse <- mean((pred.bckwdlm-testY)^2)
+backward.mse
+all_mses <- c(all_mses, c("backward",backward.mse))
+# Backward tells us that we also want to get rid of totalrooms!!
+```
+```{r}
+# Backward regression model
+forward.model <- stepAIC(mod, direction = "forward",
+                      trace = FALSE)
+forward.model$anova
+# Not much change
+forward.mse <- mean((predict(forward.model)-testY)^2)
+forward.mse # Forward says to keep everything!
+all_mses <- c(all_mses, c("forward",forward.mse))
+
+```
+
+
+```{r}
+# Now, let's try lasso and ridge regression!
+train.mat = model.matrix(price ~ ., data = trainSet)
+test.mat = model.matrix(price ~ ., data = testSet)
+```
+
+```{r}
+# Try Ridge regression first:
+grid = 10^seq(4, -2, length=100)
+fit.ridge = glmnet(train.mat, trainSet$price, alpha = 0, lambda = grid, thresh = 1e-12)
+cv.ridge = cv.glmnet(train.mat, trainSet$price, alpha = 0, lambda = grid, thresh = 1e-12)
+bestlam.ridge = cv.ridge$lambda.min
+
+pred.ridge <- predict(fit.ridge, s = bestlam.ridge, newx = test.mat)
+mean((pred.ridge - testSet$price)^2)
+all_mses <- c(all_mses, c("ridge", mean((pred.ridge - testSet$price)^2)))
+
+# This was a bit better than stepwise!
+```
+
+
+
+```{r}
+# Now let's try Lasso regression:
+set.seed(1)
+fit.lasso = glmnet(train.mat, trainSet$price, alpha = 1, lambda = grid, thresh = 1e-12)
+cv.lasso = cv.glmnet(train.mat, trainSet$price, alpha = 1, lambda = grid, thresh = 1e-12)
+bestlam.lasso = cv.lasso$lambda.min
+pred.lasso = predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+lasso.mse <- mean((pred.lasso - testSet$price)^2)
+pred.lasso <- predict(fit.lasso, s = bestlam.lasso, type = "coefficients")
+
+pred.lasso <- predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+mean((pred.lasso - testSet$price)^2)
+all_mses <- c(all_mses, c("lasso", mean((pred.lasso - testSet$price)^2)))
+
+# This was a bit better than ridge!
+```
+
+
+```{r}
+# Now, let's try Random Forests:
+set.seed(1)
+rf <-randomForest(price~.,data=trainSet, ntree=500) 
+mtry <- tuneRF(trainSet[,-1],trainSet$price, ntreeTry=500,
+               stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
+
+bag.price <-randomForest(price~.,data=trainSet, mtry=best.m, importance=TRUE,ntree=500,proximity=TRUE)
+yhat.bag <- predict(bag.price, newdata = testSet)
+mean((yhat.bag - testSet$price)^2)
+#This is the best thus far!
+# # lots of improvement here!!
+importance(bag.price)
+varImp(bag.price)
+all_mses <- c(all_mses, c("random_forests",mean((yhat.bag - testSet$price)^2)))
+```
+```{r}
+# Sort the variable importance...
+imp.all <- as.data.frame(sort(importance(bag.price)[,1],decreasing = TRUE),optional = T)
+names(imp.all) <- "% Inc MSE"
+imp.all
+```
+
+
+
+```{r}
+rf <-randomForest(price~.,data=trainSet, ntree=500) 
+mtry <- tuneRF(trainSet[,-1],trainSet$price, ntreeTry=500,
+               stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
+
+bag.price <-randomForest(price~.,data=trainSet, mtry=(ncol(trainSet)-1), importance=TRUE,ntree=500)
+yhat.bag <- predict(bag.price, newdata = testSet)
+mean((yhat.bag - testSet$price)^2)
+# # lots of improvement here!!
+# Sort the variable importance...
+imp.all <- as.data.frame(sort(importance(bag.price)[,1],decreasing = TRUE),optional = T)
+names(imp.all) <- "% Inc MSE"
+imp.all
+varImp(bag.price)
+all_mses <- c(all_mses, c("bagged",mean((yhat.bag - testSet$price)^2)))
+```
+
+
+
+```{r}
+# Now try a tree based approach:
+tree.price <- tree(price ~ ., data = trainSet)
+summary(tree.price)
+plot(tree.price)
+text(tree.price, pretty = 0)
+yhat <- predict(tree.price, data = testSet)
+mean((yhat - testSet$price)^2)
+all_mses <- c(all_mses, c("tree",mean((yhat - testSet$price)^2)))
+```
+
+
+```{r}
+# Now try a pruned tree: 
+cv.price <- cv.tree(tree.price)
+cv.price
+plot(cv.price$size, cv.price$dev, type = "b")
+tree.min <- which.min(cv.price$dev)
+points(tree.min, cv.price$dev[tree.min], col = "red", cex = 2, pch = 20)
+prune.price <- prune.tree(tree.price, best = 8)
+plot(prune.price)
+text(prune.price, pretty = 0)
+yhat <- predict(prune.price, data = testSet)
+mean((yhat - testSet$price)^2)
+all_mses <- c(all_mses, c("pruned_tree",mean((yhat - testSet$price)^2)))
+```
+
+```{r}
+gam.fit <- gam(price ~ ., data= trainSet)
+res <- predict(gam.fit, testSet)
+mean((res-testSet$price))^2
+```
+
+```{r}
+set.seed(1)
+pows <- seq(-10, -0.2, by = 0.1)
+lambdas <- 10^pows
+train.err <- rep(NA, length(lambdas))
+for (i in 1:length(lambdas)) {
+    boost.price <- gbm(price ~ ., data = trainSet, distribution = "gaussian", n.trees = 1000, shrinkage = lambdas[i])
+    pred.train <- predict(boost.price, trainSet, n.trees = 1000)
+    train.err[i] <- mean((pred.train - trainSet$price)^2)
+}
+boost.price <- gbm(price ~ ., data = trainSet, distribution = "gaussian", n.trees = 1000, shrinkage = lambdas[which.min(train.err)])
+mean((predict(boost.price,data=testSet)-testSet$price)^2)
+summary(boost.price)
+all_mses <- c(all_mses, c("boosted_tree",mean((predict(boost.price,data=testSet)-testSet$price)^2)))
+
+```
+
+```{r}
+
+fit.pcr = pcr(price ~ ., data = trainSet, scale = FALSE, validation = "CV")
+validationplot(fit.pcr, val.type = "MSEP")
+pred.pcr <- predict(fit.pcr, testSet, ncomp = ncol(trainSet))
+pcr.mse <- mean((pred.pcr - testSet$price)^2)
+all_mses <- c(all_mses, c("pcr",pcr.mse))
+
+cat(pcr.mse)
+```
+```{r}
+fit.pls = plsr(price ~ ., data = trainSet, scale = FALSE, validation = "CV")
+validationplot(fit.pls, val.type = "MSEP")
+pred.pls = predict(fit.pls, testSet, ncomp = ncol(trainSet))
+pls.mse <- mean((pred.pls - testSet$price)^2)
+pls.mse
+all_mses <- c(all_mses, c("pls",pls.mse))
+
+```
+
+
+```{r}
+library(olsrr)
+set.seed(1)
+####################################
+        # 1  -> price
+        # 2  -> desc
+        # 3  -> numstories
+        # 4  -> yearbuilt
+        # 5  -> exteriorfinish
+        # 6  -> rooftype
+        # 7  -> basement
+        # 8  -> totalrooms
+        # 9  -> bedrooms 
+        # 10 -> bathrooms
+        # 11 -> fireplaces
+        # 12 -> sqft
+        # 13 -> lotarea
+        # 14 -> state
+        # 15 -> AvgIncome
+####################################
+#desc variable, yearbuilt, exteriorfinish and basement variable, they're all pretty low. Numstories, deemed by RFs isn't too important: num stories
+# So let's see how Stepwise fails when we get rid of those variable along with total rooms
+elim_cols <- c(2,3,4,5,7,8,11) 
+trainSet <- trainSet[,-elim_cols]
+# Let's run a bunch of models first, then apply the changes!
+# Fit the full model 
+mod <- lm(price ~., data = trainSet)
+# Stepwise regression model
+step.model <- stepAIC(mod, direction = "both",
+                      trace = FALSE)
+step.model$anova
+
+# MSE improves!!
+pred.steplm <- predict(step.model, testSet)
+
+step.mse <- mean((pred.steplm-testY)^2)
+step.mse
+```
+
+```{r}
+elim_cols <- c(2,3,4,5,7,8,11) 
+testSet <- testSet[,-elim_cols]
+```
+
+```{r}
+# Now, let's try lasso and ridge regression!
+train.mat = model.matrix(price ~ ., data = trainSet)
+test.mat = model.matrix(price ~ ., data = testSet)
+```
+
+```{r}
+# Try Ridge regression first:
+grid = 10^seq(4, -2, length=100)
+fit.ridge = glmnet(train.mat, trainSet$price, alpha = 0, lambda = grid, thresh = 1e-12)
+cv.ridge = cv.glmnet(train.mat, trainSet$price, alpha = 0, lambda = grid, thresh = 1e-12)
+bestlam.ridge = cv.ridge$lambda.min
+
+pred.ridge <- predict(fit.ridge, s = bestlam.ridge, newx = test.mat)
+mean((pred.ridge - testSet$price)^2)
+# This was a bit better than stepwise!
+```
+
+
+
+```{r}
+# Now let's try Lasso regression:
+set.seed(1)
+fit.lasso = glmnet(train.mat, trainSet$price, alpha = 1, lambda = grid, thresh = 1e-12)
+cv.lasso = cv.glmnet(train.mat, trainSet$price, alpha = 1, lambda = grid, thresh = 1e-12)
+bestlam.lasso = cv.lasso$lambda.min
+pred.lasso = predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+lasso.mse <- mean((pred.lasso - testSet$price)^2)
+pred.lasso <- predict(fit.lasso, s = bestlam.lasso, type = "coefficients")
+
+pred.lasso <- predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+mean((pred.lasso - testSet$price)^2)
+# This was a bit better than ridge!
+```
+
+
+```{r}
+# Now, let's try Random Forests:
+set.seed(1)
+rf <-randomForest(price~.,data=trainSet, ntree=500) 
+mtry <- tuneRF(trainSet[,-1],trainSet$price, ntreeTry=500,
+               stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
+
+bag.price <-randomForest(price~.,data=trainSet, mtry=best.m, importance=TRUE,ntree=500,proximity=TRUE)
+yhat.bag <- predict(bag.price, newdata = testSet)
+mean((yhat.bag - testSet$price)^2)
+#This is the best thus far!
+# # lots of improvement here!!
+importance(bag.price)
+varImp(bag.price)
+```
+```{r}
+# Sort the variable importance...
+imp.all <- as.data.frame(sort(importance(bag.price)[,1],decreasing = TRUE),optional = T)
+names(imp.all) <- "% Inc MSE"
+imp.all
+```
+
+
+
+```{r}
+rf <-randomForest(price~.,data=trainSet, ntree=500) 
+mtry <- tuneRF(trainSet[,-1],trainSet$price, ntreeTry=500,
+               stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
+
+bag.price <-randomForest(price~.,data=trainSet, mtry=(ncol(trainSet)-1), importance=TRUE,ntree=500)
+yhat.bag <- predict(bag.price, newdata = testSet)
+mean((yhat.bag - testSet$price)^2)
+# # lots of improvement here!!
+# Sort the variable importance...
+imp.all <- as.data.frame(sort(importance(bag.price)[,1],decreasing = TRUE),optional = T)
+names(imp.all) <- "% Inc MSE"
+imp.all
+varImp(bag.price)
+
+```
+
+
+
+```{r}
+# Now try a tree based approach:
+tree.price <- tree(price ~ ., data = trainSet)
+summary(tree.price)
+plot(tree.price)
+text(tree.price, pretty = 0)
+yhat <- predict(tree.price, data = testSet)
+mean((yhat - testSet$price)^2)
+```
+
+
+```{r}
+# Now try a pruned tree: 
+cv.price <- cv.tree(tree.price)
+plot(cv.price$size, cv.price$dev, type = "b")
+tree.min <- which.min(cv.price$dev)
+points(tree.min, cv.price$dev[tree.min], col = "red", cex = 2, pch = 20)
+prune.price <- prune.tree(tree.price, best = 8)
+plot(prune.price)
+text(prune.price, pretty = 0)
+yhat <- predict(prune.price, data = testSet)
+mean((yhat - testSet$price)^2)
+```
+```{r}
+gam.fit <- gam(price ~ ., data= trainSet)
+res <- predict(gam.fit, testSet)
+mean((res-testSet$price))^2
+```
+
+```{r}
+set.seed(1)
+pows <- seq(-10, -0.2, by = 0.1)
+lambdas <- 10^pows
+train.err <- rep(NA, length(lambdas))
+for (i in 1:length(lambdas)) {
+    boost.price <- gbm(price ~ ., data = trainSet, distribution = "gaussian", n.trees = 1000, shrinkage = lambdas[i])
+    pred.train <- predict(boost.price, trainSet, n.trees = 1000)
+    train.err[i] <- mean((pred.train - trainSet$price)^2)
+}
+boost.price <- gbm(price ~ ., data = trainSet, distribution = "gaussian", n.trees = 1000, shrinkage = lambdas[which.min(train.err)])
+mean((predict(boost.price,data=testSet)-testSet$price)^2)
+summary(boost.price)
+```
+
+```{r}
+
+fit.pcr = pcr(price ~ ., data = trainSet, scale = FALSE, validation = "CV")
+validationplot(fit.pcr, val.type = "MSEP")
+pred.pcr <- predict(fit.pcr, testSet, ncomp = ncol(trainSet))
+pcr.mse <- mean((pred.pcr - testSet$price)^2)
+cat(pcr.mse)
+```
+
+```{r}
+fit.pls = plsr(price ~ ., data = trainSet, scale = FALSE, validation = "CV")
+validationplot(fit.pls, val.type = "MSEP")
+pred.pls = predict(fit.pls, testSet, ncomp = ncol(trainSet))
+pls.mse <- mean((pred.pls - testSet$price)^2)
+pls.mse
+```
+
+```{r}
+temp <- all_mses
+temp <- matrix(temp, ncol=2)
+temp
+#No fireplace, description, num stories, yearbuilt, exteriorfinish, zipcode, and basement
+#desc variable, yearbuilt, exteriorfinish and basement variable, they're all pretty low.
+# So let's see how Stepwise fails when we get rid of those variable along with total rooms
+bad_cols <- c(1, 3, 4, 5, 6, 8, 12, 16)
+df.test <- df.orig.test[,-bad_cols]
+
+yhat.bag <- predict(bag.price, newdata = df.orig.test)
+df.orig.test[,2] <- yhat.bag
+keep_cols <- c(1,2)
+df.output <- df.orig.test[,keep_cols]
+df.output$student_id <- rep("4191042", nrow(df.output))
+write.csv(df.output,"C:/Users/gordo/Documents/testing_predictions_4191042.csv", row.names = FALSE)
+```
