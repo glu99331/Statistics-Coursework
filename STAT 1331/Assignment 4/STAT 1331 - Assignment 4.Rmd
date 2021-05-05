@@ -1,0 +1,186 @@
+---
+title: "STAT 1331 - Assignment 4"
+author: "Gordon Lu"
+date: "11/9/2020"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Problem 1:
+Consider the monthly US unemployment rate from January 1949 to November 2011 in the file $m-unrate-4811.txt$. The data are
+seasonally adjusted and obtained from the Federal Reserve Bank at St. Louis.
+
+## 1a)  Does the monthly unemployment rate have a unit root? Why?
+
+### Solution:
+```{r, eval = TRUE}
+library("fUnitRoots")
+library("quantmod") 
+
+df <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 4/m-unrate-4811.txt", header = TRUE) #read in file
+unemprate<-ts(df,start =c(1948,1), frequency=12, end = c(2011,11)) 
+m1 <- ar(diff(unemprate),method='ols')
+m1$order
+
+#l_unrate <- log(df[,1]) #ignore date column
+#m1 <- ar(diff(l_unrate), method = 'ols')
+#m1$order
+```
+
+```{r, eval = TRUE}
+#now perform augmented dickey-fuller test
+adfTest(unemprate, lags = 12, type = c("c"))
+```
+No, since the Augmented Dickey-Fuller test had a test statistic > -3, we can say that the process is non-stationary. 
+
+## 1b)  Build a time series model for the monthly unemployment rates. Check the fitted model for adequacy. Then use the model to forecast the unemployment rate for December 2011 and the first three months of 2012. (Note that there are more than one model that fits the data well. You only need an adequate model.)
+
+### Solution:
+```{r, eval = TRUE, fig.align = 'center'}
+par(mfrow=c(1,2))
+acf(df[,1]) #display ACF of log return series
+pacf(df[,1])
+```
+
+```{r, eval = TRUE, fig.align = 'center'}
+info<-arima(unemprate,order = c(1,0,0))
+info
+```
+
+So, the model is: 
+$$
+x_t = 1.7466 + 0.9927x_{t-1} + \varepsilon_t
+$$
+
+```{r, eval = TRUE}
+predict(info, 4) #predict unemployment rate for December 2011, and first 3 months of 2012
+```
+
+# Problem 6:
+Consider the two bond yield series of the previous exercise. What is the relationship between the two series? To answer this question, take the log transformation of the data to build a time series model for the Aaa yields using Baa yields as an explanatory variable. Write down the fitted model, including model checking.
+
+### Solution:
+First, set up a linear regression model of ln(Aaa) and ln(Baa):
+
+```{r, eval = TRUE, fig.align = 'center'}
+da <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 3/m-aaa-1911.txt", header = TRUE) #read in aaa
+da1 <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 3/m-baa-1911.txt", header = TRUE) #read in baa
+
+aaa <- log(da$yield)
+baa <- log(da1$yield)
+
+plot(baa, aaa)
+```
+```{r, eval = TRUE}
+m1 <- lm(aaa ~ baa) #linear model of log(aaa) and log(baa)
+summary(m1)
+```
+
+So, we have the linear regression model:
+$$
+ln(Aaa_t) = -0.359 + 1.081ln(Baa_t) + \varepsilon_t
+$$
+
+Then, based on the ACF of the residuals of the linear regression model and the ACF of the differenced series of the residuals of the linear regression model:
+
+```{r, eval = TRUE, fig.align = 'center'}
+par(mfrow = c(1,2))
+acf(m1$residuals)
+m2 <- lm(diff(baa) ~ -1+diff(aaa))
+acf(m2$residuals)
+```
+
+So, we see that a unit root does indeed exist.
+
+So, now we set up the linear model as:
+$$
+z_t = 0.6414523y_t + \varepsilon_t
+$$
+
+Then, we plot the ACF and PACF of the residuals of the residuals of the coefficients of the regression model:
+```{r, eval = TRUE, fig.align = 'center'}
+par(mfrow = c(1,2))
+acf(m2$residuals)
+pacf(m2$residuals)
+```
+Based on the PACF plot, the peak appears at lag 2. Thus, we employ an AR(2) model.
+```{r, eval = TRUE}
+m3 <- arima(diff(aaa), order = c(2,0,0))
+m3
+```
+
+So, our fitted model is:
+$$
+(1+0.3733B_t-0.1560B_t^2)(z_t-0.6414523y_t) = a_t
+$$
+All of the coefficients here are significant, so we perform model checking.
+```{r, eval = TRUE, fig.align = 'center'}
+tsdiag(m3)
+```
+The results show that the residuals follow a pattern of white noise series, thus, the model is adequately specified.
+
+# Problem 8:
+Consider the US quarterly real gross national product from the first quarter of 1947 to the third quarter of 2011. The data are in the file $q-GNPC96.txt$, seasonally adjusted, and in billions of chained 2005 dollars. Let $x_t$ be the growth rate series of real GDP:
+
+## 8a) The $ar$ command identifies an AR(4) model for $x_t$ via the AIC criterion. Fit the model. Is the model adequate? Why?
+
+### Solution:
+```{r, eval = TRUE, fig.align = 'center'}
+da <- read.table("C:/Users/gordo/Desktop/Fall 2020 Classes/STAT 1331 - Financial Econometrics/Code/Assignment 4/q-GNPC96.txt", header = TRUE) #read in q-GNPC96.txt
+m1 <- ar(diff(log(da$gnp)), method = 'ols')
+m2 <- arima(diff(log(da$gnp)), order = c(4,0,0))
+m2
+```
+
+The fitted model for the process is:
+$$
+x_t = 0.0078 + 0.3369x_{t-1} + 0.1513x_{t-2} - 0.1010x_{t-3} + 0.0887x_{t-4} + \varepsilon_t
+$$
+
+Then, perform model checking using the `tsdiag()` function.
+```{r, eval = TRUE, fig.align = 'center'}
+tsdiag(m2)
+```
+So, based on the plots for the model chcking statistics, there does not appear to be any inadequacy for the fitted model. Additionally, from the ACF, we can see that the ACF decays quickly, and the residuals do not seem to have constant variance. So, I would say that the AR(3) model is adequate.
+
+## 8b) The sample PACF of $x_t$ specifies an AR(3) model. Fit the model. Is it adequate? Why?
+
+### Solution:
+```{r, eval = TRUE, fig.align = 'center'}
+m3 = arima(diff(log(da$gnp)),order = c(3,0,0),season = list(order = c(1,0,1), period=4))
+m3
+```
+The fitted model for the process is:
+$$
+x_t = 0.0078 + 0.3484{t-1} + 0.1386x_{t-2} - 0.1317x_{t-3} + \varepsilon_t
+$$
+Then, perform model checking using the `tsdiag()` function.
+```{r, eval = TRUE, fig.align = 'center'}
+tsdiag(m3)
+```
+The above plots show that the residuals follow a pattern of a white noise process, thus, the AR(3) model is adequately specified.
+
+## 8c) What is the model for $x_t$ if one uses in-sample model comparison? Why?
+
+### Solution:
+We would prefer to use the AR(4) model, since the AIC for AR(4) is smaller than that of the AR(3) model.
+
+## 8d) Divide the data into estimation and forecasting subsamples using the fourth quarter of 2000 as the initial forecast origin and apply the backtesting procedure with MSFE as the criterion. Select a model for $x_t$. Justify the choice.
+
+### Solution:
+```{r, eval = TRUE}
+source("backtest.r") # add functions from the local R file named backtest.R
+#Apply backtest on AR(3) model:
+m3_backtest = backtest(m3, diff(log(da$gnp)), 215, 1)
+#Apply backtest on AR(4) model:
+m4_backtest = backtest(m2, diff(log(da$gnp)), 215, 1)
+```
+
+Since the MSFE for AR(4) is less than the MSFE for the AR(3) modl, I would pick the AR(4) model.

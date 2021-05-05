@@ -1,0 +1,305 @@
+---
+title: "STAT 1331 - Assignment 5"
+author: "Gordon Lu"
+date: "11/24/2020"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1:
+Consider an ARMA(p,q) model:
+$$
+y_t = \phi_0 + \phi_1 y_{t-1} + \phi_2 y_{t-2} + ... + \phi_p y_{t-p} + u_t - \theta_1 u_{t-1} - \theta_2 u_{t-2} - ... - \theta_q u_{t-q}
+$$
+where $u_t$ ~ iid(0, $\sigma^2$).
+
+## 1a) Show that the variance of $y_t$ conditional on information at time $t-1$ is equal to $\mathbb{E}(u_{t}^2|I_{t-1})$. [$var(y_t|I_{t-1}) = \mathbb{E}(u_{t}^2|I_{t-1})$]
+
+### Solution:
+Recall that $h_{t}^2 = var(y_t|I_{t-1})$.
+
+Plugging in the ARMA(p,q) model for $y_t$ yields:
+$$
+h_{t}^2 = var(y_t|I_{t-1}) = var(\phi_0 + \phi_1 y_{t-1} + \phi_2 y_{t-2} + ... + \phi_p y_{t-p} + u_t - \theta_1 u_{t-1} - \theta_2 u_{t-2} - ... - \theta_q u_{t-q}|I_{t-1})
+$$
+
+We observe everything up to time $t-1$. Therefore, the only thing that will vary is anything that is above time $t-1$. Everything else is a constant, and by the definition of variance, the variance of a constant of variance. Therefore, we are left with:
+$$
+h_{t}^2 = var(y_t|I_{t-1}) = var(\phi_0 + \phi_1 y_{t-1} + \phi_2 y_{t-2} + ... + \phi_p y_{t-p} + u_t - \theta_1 u_{t-1} - \theta_2 u_{t-2} - ... - \theta_q u_{t-q}|I_{t-1})
+$$
+$$
+= var(u_t|I_{t-1})
+$$
+
+Recall for a given random variable X, the variance is given by:
+$$
+var(X) = E[(X-E(X))^2]
+$$
+
+If we let X = $u_t$, we have:
+$$
+h_{t}^2 = var(u_t|I_{t-1}) = E[(u_t - E(u_t|I_{t-1})^2|I_{t-1}]
+$$
+
+Our information set only contains information about previous data, so $\mathbb{E}(u_t|I_{t-1}) = 0$. Thus, we have:
+$$
+h_{t}^2 = var(u_t|I_{t-1}) = E[(u_t - E(u_t|I_{t-1})^2|I_{t-1}]
+$$
+
+$$
+h_{t}^2 = var(u_t|I_{t-1}) = E[u_t^2|I_{t-1}]
+$$
+
+Therefroce, we can say that the variance of $y_t$ conditional on information at time $t-1$ is equal to $\mathbb{E}(u_{t}^2|I_{t-1})$.
+
+## 1b) Explain the steps needed to perform the F-test for ARCH effect.
+
+### Solution:
+For a given ARCH model, say an ARCH(m) model, we would need to first formulate a hypothesis test. By noting that an ARCH(m) model is given by:
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2 + ... + \alpha_m u_{t-m}^2
+$$
+To test for an ARCH efect, we want to determine if any of the $\alpha_i$ terms, except for $\alpha_0$ are significant. In other words, we have the following:
+$$
+H_0: \alpha_1 = \alpha_2 = ... = \alpha_m = 0
+$$
+$$
+H_a: \alpha_i \neq 0 
+$$
+for at least one i = 1, ... , m.
+
+Working from the hypotheses, we construct two models. First, we have the restrictive model, which assumes that none of the $\alpha_i$ terms, except for $\alpha_0$ are significant. In other words, the restrictive model is the following: 
+$$
+E(u_{t}^2|I_{t-1}) = \alpha_0
+$$
+The second model, the unrestrictive model assumes that all of the $\alpha_i$ terms, except for $\alpha_0$ are significant. In other words, the unrestrictive model is the following:
+$$
+E(u_{t}^2|I_{t-1}) = \alpha_0 + \alpha_1 u_{t-1}^2 + ... + \alpha_m u_{t-m}^2
+$$
+
+In order to proceed forward with the test, we would need some sort of estimation of the parameters $\alpha_i$ for i = 1, ...,m. First, I have the expected value of $u_{t-1}$ conditional on information from time $t-1$, in order to get around this, we make a trick, by assuming the expected value of $u_{t-1}$ conditional on information from time $t-1$ is the following:
+$$
+\mathbb{E}(u_{t}^2|I_{t-1}) = u_{t}^2 - e_t = \alpha_0 + \alpha_1 u_{t-1}^2 + ... + \alpha_m u_{t-m}^2
+$$
+The above result assumes that:
+$$
+\mathbb{E}(e_{t}|I_{t-1}) = 0
+$$
+Which further allows us to assume that there are two components. The first being $u_t$ which depends on its past, and $e_t$ which does not depend on its past. Now, if we take the expected value, we get the following:
+$$
+\mathbb{E}(u_{t}^2 - e_{t}|I_{t-1}) = \mathbb{E}(u_{t}^2|I_{t-1}) - \mathbb{E}(e_{t}|I_{t-1})
+$$
+But, $\mathbb{E}(e_{t}|I_{t-1}) = 0$. However, writing the expectation like this allows us to express it like a linear regression:
+$$
+u_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2 + ... + \alpha_m u_{t-m}^2 + e_t
+$$
+as the unrestricted model. So, we can accordingly define the restricted model as the following:
+$$
+u_{t}^2 = \alpha_0 + e_t
+$$
+However, this $u_t$ is the part of the ARCH model that we typically assume to be unobservable. Note, if $u_{t}^2$ for t = 1, ... T were observable, we could simply have estimated the parameters $\alpha_i$ for i = 1, ...,m using OLS and then computed the sum of square of residuals, which is:
+$$
+SSR_{UR} = \sum_{t=1}^T \hat{e_{t}}^2 
+$$
+where $\hat{e_{t}}^2 = u_{t}^2 - \hat{\alpha_0} - \hat{\alpha_1}u_{t-1}^2 - ... - \hat{\alpha_p}^2 u_{t-p}^2$. The above is the SSR for the unrestricted model. We can also compute the SSR under the restrictive model, which is:
+$$
+SSR_{R} = \sum_{t=1}^T (u_t - \bar{u})^2 
+$$
+where $\bar{u} = \frac{1}{T}\sum_{t=1}^{T} u_{t}^2$
+
+If the null is true, we expect $SSR_UR$ and $SSR_R$ to be close to each other and thus, we can use the following F-statistic to test the null:
+$$
+F = \frac{(SSR_{R} = SSR_{UR})/m}{SSR_{UR}/T-m-1}
+$$
+where $T$ is the number of observations and $m$ is the number of restrictions. The F-statistic under the null follows an F distribution with numerator degrees of freedom $m$, and denominator degrees of freedom $T-m-1$. Since $u_{t-1}^2$ is not observable in practice, we need to replace them with estimations, $\hat{u_{t}}^2$, where $\hat{u_t}$ is the residual from regression of $y_t$ on its lag values.
+
+## 1c) Consider an ARCH(1) model
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2
+$$
+where $h_{t}^2 = \mathbb{E}(u_{t}^2 | I_{t-1})$. Show that for $var(u_t)$ to be constant across time, $\sigma^2$, we need $|{\alpha_1}| < 1$.
+
+### Solution:
+Recall that $\mathbb{E}(h_{t}^2) = \mathbb{E}[\mathbb{E}(u_{t}^2|I_{t-1})] = \mathbb{u_{t}^2}$. Therefore,
+$$
+\mathbb{E}(u_{t}^2) = \alpha_0 + \alpha_1 \mathbb{E}(u_{t-1}^2)
+$$
+Let $\sigma_{t}^2 = \mathbb{E}(u_{t}^2)$. Therefore,
+$$
+\sigma_{t}^2 = \alpha_0 + \alpha_1 \sigma_{t-1}^2
+$$
+$$
+(1-\alpha_1 L)\sigma_{t}^2 = \alpha_0
+$$
+Now, if the root of the lag polynomial:
+$$
+1 - \alpha_1 L = 0
+$$
+lies outside the unit circle, the inverse of the lag polynomial: 
+$$
+1 - \alpha_1 L
+$$
+exists, and we have:
+$$
+\sigma_{t}^2 = \frac{\alpha_0}{1-\alpha_1} = \sigma^2
+$$
+which is constant. Therefore, we need $|L^*| = \frac{1}{\alpha_1} > 1$ or equivalently, $|\alpha_1| < 1$.
+
+## 1d) Explain the condition needed for ARCH(m) model to have $var(u_t)$ be constant across time, $\sigma^2$.
+
+### Solution:
+For an ARCH(m) model:
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2 + \alpha_2 u_{t-2}^2 + ... + \alpha_m u_{t-m}^2
+$$
+We have $\sigma_{t}^2 = var(u_t)$ converges to:
+$$
+\sigma^2 = \frac{\alpha_0}{1-\alpha_1-...-\alpha_m}
+$$
+so long as all the roots of the lag polynomial:
+$$
+1 - \sum_{j=1}^\infty\alpha_jL^j = 0
+$$
+lie outside the unit circle. What we aim to achieve is demonstrating that the variance is constant. First, in order to derive such a condition, we start by taking the unconditional variance, and after substituting terms with $\sigma^2$, we have a lag polynomial akin to the lag polynomials from an AR(m) model. By showing that the roots of the lag polynomial lie outside the unit circle, this is akin to demonstrating that a convergent geometric series converges to some constant for ratios < 1. In this case, we consider the ratio $\frac{\alpha_0}{1-\alpha_1-...-\alpha_m}$. Note that if we had the ratio as greater than or equal to one, this would be analogous to having a divergent geometric series, which allows us to conclude that the variance would not converge to a constant in such a case.
+
+## 1e) Consider the ARCH(1) model provided above. Show that the one-step ahead forecast of conditional volatility at time $t$ is:
+$$
+h_{t+1|t}^{2f} = \alpha_0 + \alpha_1u_{t}^2
+$$
+### Solution:
+First, the ARCH(1) model is:
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2
+$$
+So, we have at time $t+1$, we have:
+$$
+h_{t+1}^2 = \alpha_0 + \alpha_1 u_{t}^2
+$$
+Recall that the one step ahead forecast is defined by:
+$$
+h_{t+1|t}^{2f} = \mathbb{E}(h_{t+1}^2|I_t)
+$$
+Plugging in $h_{t+1}^2$, we have:
+$$
+h_{t+1|t}^{2f} = \mathbb{E}(h_{t+1}^2|I_t)
+$$
+$$
+= \mathbb{E}(\alpha_0 + \alpha_1 u_{t}^2|I_t)
+$$
+$$
+= \alpha_0 + \alpha_1 u_{t}^2
+$$
+So, the one-step ahead forecase of conditional volatility at time $t$ is given by: $h_{t+1|t}^{2f} = \alpha_0 + \alpha_1 u_{t}^2$.
+
+## 1f) Again consider the ARCH(1) model provided above. Show that the $\tau$-step ahead forecast of conditional volatility at time $t$ is:
+$$
+h_{t+\tau|t}^{2f} = \alpha_0 + \alpha_1h_{t+\tau-1|t}^{2f}
+$$
+
+### Solution:
+First, the ARCH(1) model is:
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2
+$$
+where $\tau \geq 2$.
+So, we have at time $t+\tau$, we have:
+$$
+h_{t+\tau}^2 = \alpha_0 + \alpha_1 u_{t+\tau-1}^2
+$$
+So, the expectation is:
+$$
+\mathbb{E}(h_{t+\tau}^2|I_t) = \alpha_0 + \alpha_1 E(u_{t+\tau-1}^2|I_t)
+$$
+To calculate $E(u_{t+\tau-1}^2|I_t)$, we can make the observation that this is equivalent to $h_{t+\tau-1}^2$. In other words,
+$$
+h_{t+\tau-1}^2 = \mathbb{E}(u_{t+\tau-1}^2|I_{t+\tau-2})
+$$
+So, in calculating the expectation of $\mathbb{E}(u_{t+\tau-1}^2)$, we have:
+$$
+\mathbb{E}(u_{t+\tau-1}^2|I_{t+\tau-2})
+$$
+Since, $h_{t+\tau-1}^2 = \mathbb{E}(u_{t+\tau-1}^2|I_{t+\tau-2})$, we can say:
+$$
+\mathbb{E}(h_{t+\tau-1}^2|I_t)= \mathbb{E}[\mathbb{E}(u_{t+\tau-1}^2|I_{t+\tau-2})|I_t]
+$$
+By the Law of Iterated Expectations, we have:
+$$
+\mathbb{E}[\mathbb{E}(u_{t+\tau-1}^2|I_{t+\tau-2})|I_t]
+$$
+$$
+= \mathbb{E}[u_{t+\tau-1}^2|I_t]
+$$
+So, we are left with:
+$$
+\mathbb{E}(h_{t+\tau-1}^2|I_t) = \mathbb{E}[u_{t+\tau-1}^2|I_t]
+$$
+Thus, we have:
+$$
+\mathbb{E}(h_{t+\tau}^2|I_t) = \alpha_0 + \alpha_1 \mathbb{E}(u_{t+\tau-1}^2|I_t)
+$$
+$$
+= \alpha_0 + \alpha_1 \mathbb{E}(h_{t+\tau-1}^2|I_t)
+$$
+Butm $\mathbb{E}(h_{t+\tau-1}^2|I_t)$ is essentially the forecast of conditional volatility at time $t+\tau-1$. In other words, we have:
+$$
+\mathbb{E}(h_{t+\tau}^2|I_t) = \alpha_0 + \alpha_1 \mathbb{E}(h_{t+\tau-1}^2|I_t)
+$$
+$$
+= \alpha_0 + \alpha_1 h_{t+\tau-1}^{2f}
+$$
+So, the $\tau$-step ahead forecast of conditional volatility at time $t$ is given by $h_{t+\tau|t}^2= \alpha_0 + \alpha_1 h_{t+\tau-1}^{2f}$.
+
+## 1g) Consider the ARCH(m) model provided above. Provide the formula to compute the $\tau$-step ahead forecast of conditional volatility at time $t$.
+
+### Solution:
+First, the ARCH(m) model is:
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2 + \alpha_2 u_{t-2}^2 + ,,, + \alpha_m u_{t-m}^2
+$$
+
+Now, if we are interested in forecasting $\tau$-steps ahead. So, we will have:
+$$
+h_{t+\tau|t}^{2f} 
+$$
+
+$$
+= \alpha_0 + \alpha_1 h_{t+\tau-1|t}^{2f} + ... + \alpha_m h_{t+\tau-m|t}^{2f}  
+$$
+Because the cumulation of all the past forecasts will yield the forecast at time $t+\tau$ conditional on $t$. We can then say, that if:
+$$
+t + \tau - j > t \rightarrow \tau-j >0
+$$
+for j = 1, ..., m, then I don't have the information, so I need the forecast. However, if:
+$$
+t + \tau - j\leq 0 \rightarrow u_{t+\tau-j}^2
+$$
+for j = 1, ..., m, then I have the information already, I can replace the forecast with $u_{t+\tau-m}$ as it implies I am looking somewhere currently or before in time. While the other case is something further in time that I have not observed yet.
+
+To make this more clear, consider the ARCH(2) model. In an ARCH(2) model, we have:
+$$
+h_{t}^2 = \alpha_0 + \alpha_1 u_{t-1}^2 + \alpha_2 u{t-2}^2
+$$
+In this case, consider the one-step ahead forecast, and use the above formula. The one-step ahead forecast:
+$$
+h_{t+1|t}^{2f} = \alpha_0 + \alpha_1 h_{t|t}^{2f} + \alpha_2 h_{t-1|t}^{2f}
+$$
+Now, we need to consider replacing the forecasts based on the above formula. Looking at the first forecast, we notice that $\tau = 1$ and $j = 1$. Since the difference, $\tau - j = 0 \leq 0$, we can replace this forecast with $u_{t+1-1}^2$. So, with the first replacement, we have:
+$$
+h_{t+1|t}^{2f} = \alpha_0 + \alpha_1 h_{t|t}^{2f} + \alpha_2 h_{t-1|t}^{2f}
+$$
+$$
+h_{t+1|t}^{2f} = \alpha_0 + \alpha_1 u_{t}^{2} + \alpha_2 h_{t-1|t}^{2f}
+$$
+Now, if we consider the second forecast, we notice that $\tau = 1$ and $j = 2$. Since the difference, $\tau - j = -1 \leq 0$, we can replace this forecast with $u_{t+1-2}^2$. So, with the second replacement, we have:
+$$
+h_{t+1|t}^{2f} = \alpha_0 + \alpha_1 u_{t}^{2} + \alpha_2 h_{t-1|t}^{2f}
+$$
+$$
+h_{t+1|t}^{2f} = \alpha_0 + \alpha_1 u_{t}^{2} + \alpha_2 u_{t-1}^{2}
+$$
